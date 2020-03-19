@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include "test/test_primitive.h"
-#include "test/test_array.h"
-#include "test/test_list.h"
-#include "test/test_tuple.h"
-#include "test/test_set.h"
-#include "test/test_map.h"
+//#include "test_primitive.h"
+//#include "test_array.h"
+//#include "test_list.h"
+//#include "test_tuple.h"
+//#include "test_set.h"
+//#include "test_map.h"
 
-#include "test_custom.h"
+//#include "test_custom.h"
 
 int main(int argc, char *argv[])
 {

@@ -23,7 +23,7 @@ DEPENDPATH += include \
 
 INCLUDEPATH += include \
     ../FDSerialize/include \
-    ../thirdparty/rapidxml/include
+    ../thirdparty/
 
 SOURCES += \
     src/Xml_utils.cpp

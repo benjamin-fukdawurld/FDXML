@@ -23,11 +23,11 @@ INCLUDEPATH += \
 SOURCES += \
     main.cpp
 
-HEADERS += \
-    test_custom.h \
-    test_primitive.h \
-    test_array.h \
-    test_list.h \
-    test_tuple.h \
-    test_set.h \
-    test_map.h
+#HEADERS += \
+#    test_custom.h \
+#    test_primitive.h \
+#    test_array.h \
+#    test_list.h \
+#    test_tuple.h \
+#    test_set.h \
+#    test_map.h
