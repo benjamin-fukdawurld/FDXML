@@ -7,19 +7,14 @@
 TARGET = FDXml
 TEMPLATE = lib
 CONFIG += console c++17
-CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 
 DESTDIR = ../build/lib
 MAKEFILE = ../build/makefiles/$${TARGET}
-OBJECTS_DIR = ../build/.obj/$${TARGET}
+OBJECTS_DIR = ../build/obj/$${TARGET}
 
-LIBS += -Lbuild/lib -lFDSerialize
-
-DEPENDPATH += include \
-    ../FDSerialize/include \
-    ../thirdparty/rapidxml/include
+LIBS += -Lbuild/lib
 
 INCLUDEPATH += include \
     ../FDSerialize/include \

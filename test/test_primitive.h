@@ -3,14 +3,14 @@
 
 #include <gtest/gtest.h>
 
-#include <FDJson/Json_primitive.h>
-#include <FDJson/JsonSerializer.h>
+#include <FDXml/Xml_primitive.h>
+#include <FDXml/XmlSerializer.h>
 
 TEST(TestPrimitive, TestSerializeText)
 {
     { // Char
         char c = 'A';
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(c);
+        FDXml::Serializer::Value val = FDXml::Serializer::serialize(c);
         ASSERT_TRUE(val.IsString());
         EXPECT_EQ(val.GetStringLength(), 1u);
         EXPECT_STREQ(val.GetString(), "A");

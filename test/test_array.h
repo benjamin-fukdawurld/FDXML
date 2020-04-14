@@ -3,18 +3,18 @@
 
 #include <gtest/gtest.h>
 
-#include <FDJson/Json_primitive.h>
-#include <FDJson/Json_array.h>
-#include <FDJson/JsonSerializer.h>
+#include <FDXml/Xml_primitive.h>
+#include <FDXml/Xml_array.h>
+#include <FDXml/XmlSerializer.h>
 
 TEST(TestArray, TestSerializeStaticArray)
 {
     { // int[]
         int t[4] = {0, 1, 2, 3};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(t, 4);
+        FDXml::Serializer::Value val = FDXml::Serializer::serialize(t, 4);
         ASSERT_TRUE(val.IsArray());
         ASSERT_EQ(val.Size(), 4u);
-        for(rapidjson::SizeType i = 0, i_max = 4; i < i_max; ++i)
+        for(rapidxml::SizeType i = 0, i_max = 4; i < i_max; ++i)
         {
             ASSERT_TRUE(val[i].IsInt());
             EXPECT_EQ(val[i].GetInt(), t[i]);

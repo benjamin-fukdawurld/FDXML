@@ -7,7 +7,7 @@ CONFIG -= qt
 
 DESTDIR = ../../build/bin
 MAKEFILE = ../../build/makefiles/$${TARGET}
-OBJECTS_DIR = ../../build/.obj/$${TARGET}
+OBJECTS_DIR = ../../build/obj/$${TARGET}
 
 LIBS += \
     -pthread \
@@ -17,15 +17,16 @@ LIBS += \
 INCLUDEPATH += \
     ../../FDSerialize/include \
     ../../FDXml/include \
-    ../../thirdparty/rapidxml/include \
+    ../../thirdparty \
     ../../thirdparty/googletest/googletest/include \
 
 SOURCES += \
     main.cpp
 
-#HEADERS += \
+HEADERS += \
+    FDXml_test.h \
+    test_primitive.h \
 #    test_custom.h \
-#    test_primitive.h \
 #    test_array.h \
 #    test_list.h \
 #    test_tuple.h \
