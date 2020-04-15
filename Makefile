@@ -52,8 +52,12 @@ OBJECTS_DIR   = ../build/obj/FDXml/
 
 ####### Files
 
-SOURCES       = src/Xml_utils.cpp 
-OBJECTS       = ../build/obj/FDXml/Xml_utils.o
+SOURCES       = src/Xml_utils.cpp \
+		src/XmlValue.cpp \
+		src/XmlAttribute.cpp 
+OBJECTS       = ../build/obj/FDXml/Xml_utils.o \
+		../build/obj/FDXml/XmlValue.o \
+		../build/obj/FDXml/XmlAttribute.o
 DIST          = ../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/common/unix.conf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/common/linux.conf \
@@ -258,7 +262,11 @@ DIST          = ../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		include/FDXml/Xml_set.h \
 		include/FDXml/Xml_set_fwd.h \
 		include/FDXml/Xml_utils.h \
-		include/FDXml/XmlSerializer.h src/Xml_utils.cpp
+		include/FDXml/XmlSerializer.h \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlAttribute.h src/Xml_utils.cpp \
+		src/XmlValue.cpp \
+		src/XmlAttribute.cpp
 QMAKE_TARGET  = FDXml
 DESTDIR       = ../build/lib/
 TARGET        = libFDXml.so.1.0.0
@@ -726,6 +734,8 @@ compiler_clean:
 ../build/obj/FDXml/Xml_utils.o: src/Xml_utils.cpp include/FDXml/Xml_utils.h \
 		include/FDXml/Xml_primitive.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlAttribute.h \
 		include/FDXml/Xml_allocator.h \
 		include/FDXml/Xml_primitive_fwd.h \
 		include/FDXml/Xml_array.h \
@@ -737,6 +747,17 @@ compiler_clean:
 		include/FDXml/Xml_map.h \
 		include/FDXml/Xml_map_fwd.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/Xml_utils.o src/Xml_utils.cpp
+
+../build/obj/FDXml/XmlValue.o: src/XmlValue.cpp include/FDXml/XmlValue.h \
+		include/FDXml/XmlAttribute.h \
+		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/Xml_allocator.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlValue.o src/XmlValue.cpp
+
+../build/obj/FDXml/XmlAttribute.o: src/XmlAttribute.cpp include/FDXml/XmlAttribute.h \
+		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/Xml_allocator.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlAttribute.o src/XmlAttribute.cpp
 
 ####### Install
 

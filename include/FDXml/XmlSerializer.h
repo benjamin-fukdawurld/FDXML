@@ -4,6 +4,7 @@
 #include <FDSerialize/SerializerBase.h>
 
 #include <rapidxml/rapidxml.hpp>
+#include <FDXml/XmlValue.h>
 #include <FDXml/Xml_utils.h>
 
 
@@ -11,7 +12,7 @@ namespace FDXml
 {
     struct XmlSerializerImpl
     {
-        typedef rapidxml::xml_node<>* Value;
+        typedef XmlValue Value;
 
         template<typename T>
         static Value serialize(T &&obj)
@@ -34,15 +35,13 @@ namespace FDXml
         template<typename T>
         static bool unserialize(const Value &val, T &out, std::string *err = nullptr)
         {
-            return false;
-            //return FDXml::unserialize(val, out, err);
+            return FDXml::unserialize(val, out, err);
         }
 
         template<typename T>
         static bool unserialize(const Value &val, T out[], size_t len, std::string *err = nullptr)
         {
-            return false;
-            //return FDXml::unserialize(val, out, len, err);
+            return FDXml::unserialize(val, out, len, err);
         }
     };
 

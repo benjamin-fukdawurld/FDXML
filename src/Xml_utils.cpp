@@ -2,73 +2,147 @@
 
 rapidxml::memory_pool<> FDXml::Xml_helper::allocator;
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, std::nullptr_t)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::nullptr_t)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name), nullptr);
 }
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, const char c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char c)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
                                                     Xml_helper::allocator.allocate_string(std::string(1, c).c_str()));
 }
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, const char *c)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, char &c, std::string *err)
+{
+    if(attr->value_size() != 1)
+    {
+        if(err)
+            *err = "Attribute is not a char";
+
+        return false;
+    }
+
+    c = attr->value()[0];
+    return true;
+}
+
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char *c)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
                                                     Xml_helper::allocator.allocate_string(c));
 }
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, std::string &&c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::string &&c)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
                                                     Xml_helper::allocator.allocate_string(c.c_str()));
 }
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, const std::string &c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const std::string &c)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
                                                     Xml_helper::allocator.allocate_string(c.c_str()));
 }
 
-rapidxml::xml_attribute<> *FDXml::serialize_attribute(const char *name, const bool b)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, std::string &c, std::string *)
+{
+    c = attr->value();
+    return true;
+}
+
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const bool b)
 {
     return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
                                                     Xml_helper::allocator.allocate_string(b ? "true" : "false"));
 }
 
-
-rapidxml::xml_node<> *FDXml::serialize(const char c)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, bool &c, std::string *err)
 {
-    rapidxml::xml_node<> *result = Xml_helper::allocator.allocate_node(rapidxml::node_element, "char");
-    result->append_attribute(serialize_attribute("value", c));
+    std::string val = attr->value();
+    if(val == "true")
+        c = true;
+    else if(val == "false")
+        c = false;
+    else
+    {
+        if(err)
+            *err = "Attribute is not a bool";
+
+        return false;
+    }
+
+    return true;
+}
+
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, int64_t &i, std::string *err)
+{
+    std::string val = attr->value();
+    size_t pos = 0;
+    int64_t result = std::stoll(val, &pos);
+    if(pos != val.size())
+    {
+        if(err)
+            *err = "Attribute is not an integer";
+
+        return false;
+    }
+
+    i = result;
+
+    return true;
+}
+
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, uint64_t &i, std::string *err)
+{
+    std::string val = attr->value();
+    size_t pos = 0;
+    uint64_t result = std::stoull(val, &pos);
+    if(pos != val.size())
+    {
+        if(err)
+            *err = "Attribute is not an unsingned integer";
+
+        return false;
+    }
+
+    i = result;
+
+    return true;
+}
+
+
+FDXml::XmlValue FDXml::serialize(const char c)
+{
+    FDXml::XmlValue result("char");
+    result.setAttribute(serialize_attribute("value", c));
     return result;
 }
 
-rapidxml::xml_node<> *FDXml::serialize(const char *c)
+FDXml::XmlValue FDXml::serialize(const char *c)
 {
-    rapidxml::xml_node<> *result = Xml_helper::allocator.allocate_node(rapidxml::node_element, "str");
-    result->append_attribute(serialize_attribute("value", c));
+    FDXml::XmlValue result("str");
+    result.setAttribute(serialize_attribute("value", c));
     return result;
 }
 
-rapidxml::xml_node<> *FDXml::serialize(std::string &&c)
+FDXml::XmlValue FDXml::serialize(std::string &&c)
 {
-    rapidxml::xml_node<> *result = Xml_helper::allocator.allocate_node(rapidxml::node_element, "str");
-    result->append_attribute(serialize_attribute("value", c));
+    FDXml::XmlValue result("str");
+    result.setAttribute(serialize_attribute("value", c));
     return result;
 }
 
-rapidxml::xml_node<> *FDXml::serialize(const std::string &c)
+FDXml::XmlValue FDXml::serialize(const std::string &c)
 {
-    rapidxml::xml_node<> *result = Xml_helper::allocator.allocate_node(rapidxml::node_element, "str");
-    result->append_attribute(serialize_attribute("value", c));
+    FDXml::XmlValue result("str");
+    result.setAttribute(serialize_attribute("value", c));
     return result;
 }
 
-rapidxml::xml_node<> *FDXml::serialize(const bool b)
+FDXml::XmlValue FDXml::serialize(const bool b)
 {
-    rapidxml::xml_node<> *result = Xml_helper::allocator.allocate_node(rapidxml::node_element, "bool");
-    result->append_attribute(serialize_attribute("value", b));
+    FDXml::XmlValue result("str");
+    result.setAttribute(serialize_attribute("value", b));
     return result;
 }

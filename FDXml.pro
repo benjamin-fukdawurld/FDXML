@@ -21,7 +21,9 @@ INCLUDEPATH += include \
     ../thirdparty/
 
 SOURCES += \
-    src/Xml_utils.cpp
+    src/Xml_utils.cpp \
+    src/XmlValue.cpp \
+    src/XmlAttribute.cpp
 
 HEADERS += \
     include/FDXml/FDXml.h \
@@ -38,7 +40,9 @@ HEADERS += \
     include/FDXml/Xml_set.h \
     include/FDXml/Xml_set_fwd.h \
     include/FDXml/Xml_utils.h \
-    include/FDXml/XmlSerializer.h
+    include/FDXml/XmlSerializer.h \
+    include/FDXml/XmlValue.h \
+    include/FDXml/XmlAttribute.h
 
 
 unix {

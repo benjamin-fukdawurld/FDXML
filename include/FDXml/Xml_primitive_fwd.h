@@ -2,25 +2,35 @@
 #define XML_PRIMITIVE_FWD_H
 
 #include <cstdint>
-#include <cstddef>
 #include <string>
 #include <type_traits>
+#include <optional>
 
-#include <rapidxml/rapidxml.hpp>
+#include <FDXml/XmlAttribute.h>
+#include <FDXml/XmlValue.h>
 
 namespace FDXml
 {
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, std::nullptr_t);
+    template<typename T>
+    bool unserialize_attribute(const XmlAttribute &attr, std::optional<T> &opt, std::string *err = nullptr);
 
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, const char c);
+    XmlAttribute serialize_attribute(const char *name, std::nullptr_t);
 
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, const char *c);
+    XmlAttribute serialize_attribute(const char *name, const char c);
 
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, std::string &&c);
+    bool unserialize_attribute(const XmlAttribute &attr, char &c, std::string *err = nullptr);
 
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, const std::string &c);
+    XmlAttribute serialize_attribute(const char *name, const char *c);
 
-    rapidxml::xml_attribute<> *serialize_attribute(const char *name, const bool b);
+    XmlAttribute serialize_attribute(const char *name, std::string &&c);
+
+    XmlAttribute serialize_attribute(const char *name, const std::string &c);
+
+    bool unserialize_attribute(const XmlAttribute &attr, std::string &c, std::string *err = nullptr);
+
+    XmlAttribute serialize_attribute(const char *name, const bool b);
+
+    bool unserialize_attribute(const XmlAttribute &attr, bool &c, std::string *err = nullptr);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -29,7 +39,7 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    rapidxml::xml_attribute<> *> serialize_attribute(const char *name, T &&i);
+    XmlAttribute> serialize_attribute(const char *name, T &&i);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -38,27 +48,39 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    rapidxml::xml_attribute<> *> serialize_attribute(const char *name, const T &i);
+    XmlAttribute> serialize_attribute(const char *name, const T &i);
+
+    bool unserialize_attribute(const XmlAttribute &attr, int64_t &i, std::string *err = nullptr);
+    bool unserialize_attribute(const XmlAttribute &attr, uint64_t &i, std::string *err = nullptr);
+
+    template<typename T>
+    std::enable_if_t<std::is_same<T, int16_t>::value || std::is_same<T, int32_t>::value
+                || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value,
+    bool> unserialize_attribute(const XmlAttribute &attr, T &i, std::string *err = nullptr);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    rapidxml::xml_attribute<> *> serialize_attribute(const char *name, T &&i);
+    XmlAttribute > serialize_attribute(const char *name, T &&i);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    rapidxml::xml_attribute<> *> serialize_attribute(const char *name, const T &i);
+    XmlAttribute > serialize_attribute(const char *name, const T &i);
 
-    rapidxml::xml_node<> *serialize(const char c);
+    template<typename T>
+    std::enable_if_t<std::is_same<T, float>::value || std::is_same<T, double>::value,
+    bool> unserialize_attribute(const XmlAttribute &attr, float &f, std::string *err = nullptr);
 
-    rapidxml::xml_node<> *serialize(const char *c);
+    XmlValue serialize(const char c);
 
-    rapidxml::xml_node<> *serialize(std::string &&c);
+    FDXml::XmlValue serialize(const char *c);
 
-    rapidxml::xml_node<> *serialize(const std::string &c);
+    FDXml::XmlValue serialize(std::string &&c);
 
-    rapidxml::xml_node<> *serialize(const bool b);
+    FDXml::XmlValue serialize(const std::string &c);
+
+    FDXml::XmlValue serialize(const bool b);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -67,7 +89,7 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    rapidxml::xml_node<> *> serialize(T &&i);
+    FDXml::XmlValue > serialize(T &&i);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -76,17 +98,31 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    rapidxml::xml_node<> *> serialize(const T &i);
+    FDXml::XmlValue > serialize(const T &i);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    rapidxml::xml_node<> *> serialize(T &&i);
+    FDXml::XmlValue > serialize(T &&i);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    rapidxml::xml_node<> *> serialize(const T &i);
+    FDXml::XmlValue > serialize(const T &i);
+
+    template<typename T>
+    std::enable_if_t<std::is_same<T, bool>::value
+                        || std::is_same<T, char>::value
+                        || std::is_same<T, std::string>::value
+                        || std::is_same<T, int16_t>::value
+                        || std::is_same<T, int32_t>::value
+                        || std::is_same<T, int64_t>::value
+                        || std::is_same<T, uint16_t>::value
+                        || std::is_same<T, uint32_t>::value
+                        || std::is_same<T, uint64_t>::value
+                        ||std::is_same<T, float>::value
+                        || std::is_same<T, double>::value,
+    bool> unserialize(const FDXml::XmlValue &val, T &f, std::string *err = nullptr);
 }
 
 #endif // XML_PRIMITIVE_FWD_H
