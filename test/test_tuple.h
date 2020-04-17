@@ -1,77 +1,76 @@
-#ifndef TEST_TUPLE_H
-#define TEST_TUPLE_H
+#ifndef FDXML_TEST_TUPLE_H
+#define FDXML_TEST_TUPLE_H
 
 
 #include <gtest/gtest.h>
 
-#include <FDJson/Json_primitive.h>
-#include <FDJson/Json_tuple.h>
-#include <FDJson/JsonSerializer.h>
+#include <FDXml/Xml_tuple_fwd.h>
 
-TEST(TestTuple, TestSerializeTuple)
+#include <FDXml/Xml_primitive.h>
+#include <FDXml/Xml_tuple.h>
+#include <FDXml/XmlSerializer.h>
+
+TEST(TestXmlTuple, TestSerializeTuple)
 {
     {
         std::tuple<int, float, std::string> t = std::make_tuple(1, 3.14f, "test");
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(t);
-        ASSERT_TRUE(val.IsArray());
-        ASSERT_EQ(val.Size(), 3u);
-        EXPECT_TRUE(val[0].IsInt());
-        EXPECT_EQ(val[0].GetInt(), std::get<0>(t));
-        EXPECT_TRUE(val[1].IsFloat());
-        EXPECT_EQ(val[1].GetFloat(), std::get<1>(t));
-        EXPECT_TRUE(val[2].IsString());
-        EXPECT_STREQ(val[2].GetString(), std::get<2>(t).c_str());
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(t);
+        ASSERT_TRUE(val.isArray());
+        ASSERT_EQ(val.size(), 3u);
+        EXPECT_TRUE(val[0ul].isInt());
+        EXPECT_EQ(val[0ul].getAttribute("value").getValue(), std::to_string(std::get<0>(t)));
+        EXPECT_TRUE(val[1].isFloat());
+        EXPECT_EQ(val[1].getAttribute("value").getValue(), std::to_string(std::get<1>(t)));
+        EXPECT_TRUE(val[2].isString());
+        EXPECT_EQ(val[2].getAttribute("value").getValue(), std::get<2>(t));
     }
 }
 
-TEST(TestTuple, TestSerializePair)
+TEST(TestXmlTuple, TestSerializePair)
 {
     {
         std::pair<int, std::string> p = std::make_pair(1, "test");
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(p);
-        ASSERT_TRUE(val.IsObject());
-        ASSERT_TRUE(val.HasMember("first"));
-        EXPECT_TRUE(val["first"].IsInt());
-        EXPECT_EQ(val["first"].GetInt(), p.first);
-        ASSERT_TRUE(val.HasMember("second"));
-        EXPECT_TRUE(val["second"].IsString());
-        EXPECT_STREQ(val["second"].GetString(), p.second.c_str());
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(p);
+        ASSERT_TRUE(val.isObject());
+        ASSERT_TRUE(val.hasChildNode("first"));
+        EXPECT_TRUE(val["first"].isInt());
+        EXPECT_EQ(val["first"].getValue(), std::to_string(p.first));
+        ASSERT_TRUE(val.hasChildNode("second"));
+        EXPECT_TRUE(val["second"].isString());
+        EXPECT_EQ(val["second"].getValue(), p.second);
     }
 }
 
-TEST(TestTuple, TestUnserializepair)
+TEST(TestXmlTuple, TestUnserializePair)
 {
     {
         std::pair<int, std::string> in = std::make_pair(1, "test");
         std::pair<int, std::string> t;
-        FDJson::Serializer::Value val(rapidjson::kObjectType);
-        val.AddMember("first", FDJson::Serializer::Value(in.first), FDJson::Json_helper::allocator);
-        val.AddMember("second", FDJson::Serializer::Value(in.second.c_str(), FDJson::Json_helper::allocator), FDJson::Json_helper::allocator);
+        FDXml::XmlValue val("pair");
+        val.addChildNode({ "first", "int", std::to_string(in.first) });
+        val.addChildNode({ "second", "str", in.second });
         std::string err;
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, t, &err)) << err;
-        for(size_t i = 0, i_max = 3; i < i_max; ++i)
-        {
-            EXPECT_EQ(std::get<0>(t), std::get<0>(t));
-        }
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        EXPECT_EQ(t.first, in.first);
+        EXPECT_EQ(t.second, in.second);
     }
 }
 
-TEST(TestTuple, TestUnserializeTuple)
+TEST(TestXmlTuple, TestUnserializeTuple)
 {
     {
         std::tuple<int, float, std::string> in = std::make_tuple(1, 3.14f, "test");
         std::tuple<int, float, std::string> t;
-        FDJson::Serializer::Value val(rapidjson::kArrayType);
-        val.PushBack(FDJson::Serializer::Value(std::get<0>(in)), FDJson::Json_helper::allocator);
-        val.PushBack(FDJson::Serializer::Value(std::get<1>(in)), FDJson::Json_helper::allocator);
-        val.PushBack(FDJson::Serializer::Value(std::get<2>(in).c_str(), FDJson::Json_helper::allocator), FDJson::Json_helper::allocator);
+        FDXml::Serializer::Value val("array");
+        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<0>(in)));
+        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<1>(in)));
+        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<2>(in)));
         std::string err;
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, t, &err)) << err;
-        for(size_t i = 0, i_max = 3; i < i_max; ++i)
-        {
-            EXPECT_EQ(std::get<0>(t), std::get<0>(t));
-        }
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        EXPECT_EQ(std::get<0>(t), std::get<0>(in));
+        EXPECT_EQ(std::get<1>(t), std::get<1>(in));
+        EXPECT_EQ(std::get<2>(t), std::get<2>(in));
     }
 }
 
-#endif // TEST_TUPLE_H
+#endif // FDXML_TEST_TUPLE_H

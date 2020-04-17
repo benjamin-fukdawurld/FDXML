@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I. -I../../FDSerialize/include -I../../FDXml/include -I../../thirdparty -I../../thirdparty/googletest/googletest/include -I../../../../Qt/5.13.2/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I../../FDSerialize/include -I../../FDXml/include -I../../FDCore/include -I../../thirdparty -I../../thirdparty/googletest/googletest/include -I../../../../Qt/5.13.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/benjamin/Qt/5.13.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = FDXml_test1.0.0
 DISTDIR = /home/benjamin/dev/FanatikDevelopment/build/obj/FDXml_test/FDXml_test1.0.0
 LINK          = g++
 LFLAGS        = 
-LIBS          = $(SUBLIBS) -pthread -L../../build/lib -lFDXml -L../../thirdparty/googletest/build/lib -lgtest   
+LIBS          = $(SUBLIBS) -pthread -L../../build/lib -lFDXml -lFDCore -L../../thirdparty/googletest/build/lib -lgtest   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -245,7 +245,13 @@ DIST          = ../../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.13.2/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.13.2/gcc_64/mkspecs/features/lex.prf \
 		FDXml_test.pro FDXml_test.h \
-		test_primitive.h main.cpp
+		test_primitive.h \
+		test_array.h \
+		test_list.h \
+		test_tuple.h \
+		test_set.h \
+		test_map.h \
+		test_custom.h main.cpp
 QMAKE_TARGET  = FDXml_test
 DESTDIR       = ../../build/bin/
 TARGET        = ../../build/bin/FDXml_test
@@ -705,21 +711,36 @@ compiler_clean:
 		../../thirdparty/googletest/googletest/include/gtest/gtest_pred_impl.h \
 		FDXml_test.h \
 		test_primitive.h \
-		../../FDXml/include/FDXml/Xml_primitive.h \
-		../../thirdparty/rapidxml/rapidxml.hpp \
-		../../FDXml/include/FDXml/Xml_allocator.h \
 		../../FDXml/include/FDXml/Xml_primitive_fwd.h \
 		../../FDXml/include/FDXml/XmlSerializer.h \
 		../../FDSerialize/include/FDSerialize/SerializerBase.h \
-		../../FDXml/include/FDXml/Xml_utils.h \
-		../../FDXml/include/FDXml/Xml_array.h \
+		../../FDXml/include/FDXml/Xml_fwd.h \
+		../../FDXml/include/FDXml/FDXml.h \
+		../../thirdparty/rapidxml/rapidxml.hpp \
 		../../FDXml/include/FDXml/Xml_array_fwd.h \
-		../../FDXml/include/FDXml/Xml_list.h \
 		../../FDXml/include/FDXml/Xml_list_fwd.h \
-		../../FDXml/include/FDXml/Xml_set.h \
+		../../FDXml/include/FDXml/Xml_tuple_fwd.h \
 		../../FDXml/include/FDXml/Xml_set_fwd.h \
+		../../FDXml/include/FDXml/Xml_map_fwd.h \
+		../../FDXml/include/FDXml/XmlValue.h \
+		../../FDXml/include/FDXml/XmlAttribute.h \
+		../../FDXml/include/FDXml/XmlNodeIterator.h \
+		../../FDXml/include/FDXml/XmlAttributeIterator.h \
+		../../FDXml/include/FDXml/Xml_primitive.h \
+		test_array.h \
+		../../FDXml/include/FDXml/Xml_array.h \
+		test_list.h \
+		../../FDXml/include/FDXml/Xml_list.h \
+		test_set.h \
+		../../FDXml/include/FDXml/Xml_set.h \
+		test_tuple.h \
+		../../FDXml/include/FDXml/Xml_tuple.h \
+		test_map.h \
+		test_custom.h \
+		../../FDXml/include/FDXml/Xml_utils.h \
 		../../FDXml/include/FDXml/Xml_map.h \
-		../../FDXml/include/FDXml/Xml_map_fwd.h
+		../../thirdparty/rapidxml/rapidxml_print.hpp \
+		../../FDCore/include/FDCore/FileUtils.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../build/obj/FDXml_test/main.o main.cpp
 
 ####### Install

@@ -1,8 +1,12 @@
 #ifndef XML_PRIMITIVE_H
 #define XML_PRIMITIVE_H
 
-#include <FDXml/XmlValue.h>
 #include <FDXml/Xml_primitive_fwd.h>
+
+#include <FDXml/XmlAttribute.h>
+#include <FDXml/XmlValue.h>
+
+#include <FDXml/XmlSerializer.h>
 
 namespace FDXml
 {
@@ -13,7 +17,7 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    XmlAttribute> serialize_attribute(const char *name, T &&i)
+    XmlAttribute> serialize_attribute(const char *name, T &&i, Serializer &)
     {
         return XmlAttribute(name, std::to_string(std::move(i)));
     }
@@ -25,7 +29,7 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    XmlAttribute> serialize_attribute(const char *name, const T &i)
+    XmlAttribute> serialize_attribute(const char *name, const T &i, Serializer &)
     {
         return XmlAttribute(name, std::to_string(i));
     }
@@ -33,13 +37,13 @@ namespace FDXml
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value || std::is_same<T, int32_t>::value
                 || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value,
-    bool> unserialize_attribute(const XmlAttribute &attr, T &i, std::string *err)
+    bool> unserialize_attribute(const XmlAttribute &attr, T &i, Serializer &tag, std::string *err)
     {
         int64_t result = 0;
-        if(!FDXml::unserialize_attribute(attr, result, err))
+        if(!FDXml::unserialize_attribute(attr, result, tag, err))
             return false;
 
-        if(result > std::numeric_limits<T>::max() || result > std::numeric_limits<T>::min())
+        if(result > std::numeric_limits<T>::max() || result < std::numeric_limits<T>::min())
         {
             if(err)
                 *err = "Attribute value is out of range";
@@ -54,7 +58,7 @@ namespace FDXml
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlAttribute> serialize_attribute(const std::string_view name, T &&i)
+    XmlAttribute> serialize_attribute(const char *name, T &&i, Serializer &)
     {
         return XmlAttribute(name, std::to_string(i));
     }
@@ -62,14 +66,14 @@ namespace FDXml
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlAttribute> serialize_attribute(const std::string_view name, const T &i)
+    XmlAttribute> serialize_attribute(const char *name, const T &i, Serializer &)
     {
         return XmlAttribute(name, std::to_string(i));
     }
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value || std::is_same<T, double>::value,
-    bool> unserialize_attribute(const XmlAttribute &attr, float &f, std::string *err)
+    bool> unserialize_attribute(const XmlAttribute &attr, T &f, Serializer &, std::string *err)
     {
         std::string val = attr->value();
         size_t pos = 0;
@@ -83,7 +87,7 @@ namespace FDXml
         }
 
         if(result > static_cast<long double>(std::numeric_limits<T>::max())
-           || result < static_cast<long double>(std::numeric_limits<T>::max()))
+           || result < static_cast<long double>(std::numeric_limits<T>::min()))
         {
             if(err)
                 *err = "Attribute value is out of range";
@@ -103,10 +107,10 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    rapidxml::xml_node<> *> serialize(T &&i)
+    rapidxml::xml_node<> *> serialize(T &&i, Serializer &tag)
     {
         XmlValue result("int");
-        result.setAttribute(serialize_attribute("value", std::move(i)));
+        result.setAttribute(serialize_attribute("value", std::move(i), tag));
         return result;
     }
 
@@ -117,35 +121,35 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    XmlValue> serialize(const T &i)
+    XmlValue> serialize(const T &i, Serializer &tag)
     {
         XmlValue result("int");
-        result.setAttribute(serialize_attribute("value", i));
+        result.setAttribute(serialize_attribute("value", i, tag));
         return result;
     }
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlValue> serialize(T &&i)
+    XmlValue> serialize(T &&i, Serializer &tag)
     {
         XmlValue result("float");
-        result.setAttribute(serialize_attribute("value", i));
+        result.setAttribute(serialize_attribute("value", i, tag));
         return result;
     }
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlValue> serialize(const T &i)
+    XmlValue> serialize(const T &i, Serializer &tag)
     {
         XmlValue result("float");
-        result.setAttribute(serialize_attribute("value", i));
+        result.setAttribute(serialize_attribute("value", i, tag));
         return result;
     }
 
     template<typename T>
-    bool unserialize_attribute(const XmlAttribute &attr, std::optional<T> &opt, std::string *err)
+    bool unserialize_attribute(const XmlAttribute &attr, std::optional<T> &opt, Serializer &tag, std::string *err)
     {
         if(!attr || attr->value_size() == 0)
         {
@@ -153,11 +157,11 @@ namespace FDXml
             return true;
         }
 
-        return unserialize(attr, opt.value(), err);
+        return unserialize(attr, opt.value(), tag, err);
     }
 
     template<typename T>
-    bool unserialize(const XmlValue &val, std::optional<T> &opt, std::string *err)
+    bool unserialize(const XmlValue &val, std::optional<T> &opt, Serializer &tag, std::string *err)
     {
         if(val.isNull())
         {
@@ -165,7 +169,7 @@ namespace FDXml
             return true;
         }
 
-        return unserialize<T>(val, opt.value(), err);
+        return unserialize<T>(val, opt.value(), tag, err);
     }
 
     template<typename T>
@@ -178,13 +182,13 @@ namespace FDXml
                         || std::is_same<T, uint16_t>::value
                         || std::is_same<T, uint32_t>::value
                         || std::is_same<T, uint64_t>::value
-                        ||std::is_same<T, float>::value
+                        || std::is_same<T, float>::value
                         || std::is_same<T, double>::value,
-    bool> unserialize(const XmlValue &val, T &v, std::string *err)
+    bool> unserialize(const XmlValue &val, T &v, Serializer &tag, std::string *err)
     {
         const XmlAttribute &attr = val.getAttribute("value");
 
-        if(!attr || attr->value_size() == 0)
+        if(!attr)
         {
             if(err)
                 *err = "Node has no 'value' attribute";
@@ -192,7 +196,7 @@ namespace FDXml
             return false;
         }
 
-        if(!unserialize_attribute(attr, v, err))
+        if(!unserialize_attribute(attr, v, tag, err))
         {
             if(err)
                 *err = std::string("Node's attribute 'value':") + *err;

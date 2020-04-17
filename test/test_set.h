@@ -1,52 +1,53 @@
-#ifndef TEST_SET_H
-#define TEST_SET_H
+#ifndef FDXML_TEST_SET_H
+#define FDXML_TEST_SET_H
 
 #include <gtest/gtest.h>
 
-#include <FDJson/Json_fwd.h>
-#include <FDJson/Json_primitive.h>
-#include <FDJson/Json_set.h>
-#include <FDJson/JsonSerializer.h>
+#include <FDXml/XmlSerializer.h>
+#include <FDXml/Xml_set.h>
 
-TEST(TestSet, TestSerializeSet)
+TEST(TestXmlSet, TestSerializeSet)
 {
     {
         const std::unordered_set<int> s = {0, 1, 2, 3};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(s);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(s);
 
-        ASSERT_TRUE(val.IsArray());
-        ASSERT_EQ(val.Size(), s.size());
-        for(auto it = val.Begin(), end = val.End(); it != end; ++it)
+        ASSERT_TRUE(val.isArray());
+        ASSERT_EQ(val.size(), s.size());
+        std::string err;
+        for(auto it = val.begin(), end = val.end(); it != end; ++it)
         {
-            ASSERT_TRUE(it->IsInt());
-            ASSERT_TRUE(s.find(it->GetInt()) != s.end());
+            int i;
+            ASSERT_TRUE(it->isInt());
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(*it, i, &err)) << err;
+            ASSERT_TRUE(s.find(i) != s.end());
         }
 
     }
 
     {
         const std::set<std::string> s = {"faubaf", "azfaezf", "000000", ""};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(s);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(s);
 
-        ASSERT_TRUE(val.IsArray());
-        ASSERT_EQ(val.Size(), s.size());
-        for(auto it = val.Begin(), end = val.End(); it != end; ++it)
+        ASSERT_TRUE(val.isArray());
+        ASSERT_EQ(val.size(), s.size());
+        for(auto it = val.begin(), end = val.end(); it != end; ++it)
         {
-            ASSERT_TRUE(it->IsString());
-            ASSERT_TRUE(s.find(it->GetString()) != s.end());
+            ASSERT_TRUE(it->isString());
+            ASSERT_TRUE(s.find(std::string(it->getAttribute("value").getValue())) != s.end());
         }
     }
 }
 
-TEST(TestSet, TestUnserializeSet)
+TEST(TestXmlSet, TestUnserializeSet)
 {
     {
         const std::unordered_set<int> in = {0, 1, 2, 3};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(in);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(in);
         std::unordered_set<int> s;
         std::string err;
 
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, s, &err)) << err;
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, s, &err)) << err;
         for(int i = 0, i_max = 4; i < i_max; ++i)
         {
             ASSERT_TRUE(s.find(i) != s.end());
@@ -55,11 +56,11 @@ TEST(TestSet, TestUnserializeSet)
 
     {
         const std::set<std::string> in = {"faubaf", "azfaezf", "000000", ""};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(in);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(in);
         std::unordered_set<std::string> s;
         std::string err;
 
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, s, &err)) << err;
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, s, &err)) << err;
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
             ASSERT_TRUE(s.find(*it) != s.end());
@@ -67,4 +68,4 @@ TEST(TestSet, TestUnserializeSet)
     }
 }
 
-#endif // TEST_SET_H
+#endif // FDXML_TEST_SET_H

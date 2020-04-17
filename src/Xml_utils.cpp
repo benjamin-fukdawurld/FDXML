@@ -1,19 +1,27 @@
 #include <FDXml/Xml_utils.h>
 
-rapidxml::memory_pool<> FDXml::Xml_helper::allocator;
+#include <FDXml/XmlSerializer.h>
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::nullptr_t)
+std::pair<const char*, void*> FDXml::XmlSerializerImpl::LastError;
+
+void rapidxml::parse_error_handler(const char *what, void *where)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name), nullptr);
+    FDXml::XmlSerializerImpl::LastError = std::make_pair(what, where);
 }
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::nullptr_t, Serializer &)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
-                                                    Xml_helper::allocator.allocate_string(std::string(1, c).c_str()));
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name);
 }
 
-bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, char &c, std::string *err)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char c, Serializer &)
+{
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name, std::string(1, c));
+}
+
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, char &c, Serializer &, std::string *err)
 {
     if(attr->value_size() != 1)
     {
@@ -27,37 +35,37 @@ bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, char &c, std:
     return true;
 }
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char *c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const char *c, Serializer &)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
-                                                    Xml_helper::allocator.allocate_string(c));
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name, c);
 }
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::string &&c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, std::string &&c, Serializer &)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
-                                                    Xml_helper::allocator.allocate_string(c.c_str()));
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name, c);
 }
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const std::string &c)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const std::string &c, Serializer &)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
-                                                    Xml_helper::allocator.allocate_string(c.c_str()));
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name, c);
 }
 
-bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, std::string &c, std::string *)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, std::string &c, Serializer &, std::string *)
 {
     c = attr->value();
     return true;
 }
 
-FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const bool b)
+FDXml::XmlAttribute FDXml::serialize_attribute(const char *name, const bool b, Serializer &)
 {
-    return Xml_helper::allocator.allocate_attribute(Xml_helper::allocator.allocate_string(name),
-                                                    Xml_helper::allocator.allocate_string(b ? "true" : "false"));
+    assert("Attribute must have a name" && name != nullptr);
+    return FDXml::XmlAttribute(name, b ? "true" : "false");
 }
 
-bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, bool &c, std::string *err)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, bool &c, Serializer &, std::string *err)
 {
     std::string val = attr->value();
     if(val == "true")
@@ -75,7 +83,7 @@ bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, bool &c, std:
     return true;
 }
 
-bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, int64_t &i, std::string *err)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, int64_t &i, Serializer &, std::string *err)
 {
     std::string val = attr->value();
     size_t pos = 0;
@@ -93,7 +101,7 @@ bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, int64_t &i, s
     return true;
 }
 
-bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, uint64_t &i, std::string *err)
+bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, uint64_t &i, Serializer &, std::string *err)
 {
     std::string val = attr->value();
     size_t pos = 0;
@@ -112,37 +120,42 @@ bool FDXml::unserialize_attribute(const FDXml::XmlAttribute &attr, uint64_t &i, 
 }
 
 
-FDXml::XmlValue FDXml::serialize(const char c)
+FDXml::XmlValue FDXml::serialize(const char c, Serializer &tag)
 {
     FDXml::XmlValue result("char");
-    result.setAttribute(serialize_attribute("value", c));
+    result.setAttribute(serialize_attribute("value", c, tag));
     return result;
 }
 
-FDXml::XmlValue FDXml::serialize(const char *c)
+FDXml::XmlValue FDXml::serialize(const char *c, Serializer &tag)
 {
     FDXml::XmlValue result("str");
-    result.setAttribute(serialize_attribute("value", c));
+
+    if(c != nullptr)
+        result.setAttribute(serialize_attribute("value", c, tag));
+    else
+        result.setAttribute(serialize_attribute("value", nullptr, tag));
+
     return result;
 }
 
-FDXml::XmlValue FDXml::serialize(std::string &&c)
+FDXml::XmlValue FDXml::serialize(std::string &&c, Serializer &tag)
 {
     FDXml::XmlValue result("str");
-    result.setAttribute(serialize_attribute("value", c));
+    result.setAttribute(serialize_attribute("value", c, tag));
     return result;
 }
 
-FDXml::XmlValue FDXml::serialize(const std::string &c)
+FDXml::XmlValue FDXml::serialize(const std::string &c, Serializer &tag)
 {
     FDXml::XmlValue result("str");
-    result.setAttribute(serialize_attribute("value", c));
+    result.setAttribute(serialize_attribute("value", c, tag));
     return result;
 }
 
-FDXml::XmlValue FDXml::serialize(const bool b)
+FDXml::XmlValue FDXml::serialize(const bool b, Serializer &tag)
 {
     FDXml::XmlValue result("str");
-    result.setAttribute(serialize_attribute("value", b));
+    result.setAttribute(serialize_attribute("value", b, tag));
     return result;
 }

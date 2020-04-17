@@ -1,9 +1,7 @@
 #ifndef XMLATTRIBUTE_H
 #define XMLATTRIBUTE_H
 
-#include <rapidxml/rapidxml.hpp>
-
-#include <FDXml/Xml_allocator.h>
+#include <FDXml/FDXml.h>
 
 #include <string>
 

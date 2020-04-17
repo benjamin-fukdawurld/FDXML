@@ -11,12 +11,13 @@ OBJECTS_DIR = ../../build/obj/$${TARGET}
 
 LIBS += \
     -pthread \
-    -L../../build/lib -lFDXml \
+    -L../../build/lib -lFDXml -lFDCore \
     -L../../thirdparty/googletest/build/lib -lgtest
 
 INCLUDEPATH += \
     ../../FDSerialize/include \
     ../../FDXml/include \
+    ../../FDCore/include \
     ../../thirdparty \
     ../../thirdparty/googletest/googletest/include \
 
@@ -26,9 +27,9 @@ SOURCES += \
 HEADERS += \
     FDXml_test.h \
     test_primitive.h \
-#    test_custom.h \
-#    test_array.h \
-#    test_list.h \
-#    test_tuple.h \
-#    test_set.h \
-#    test_map.h
+    test_array.h \
+    test_list.h \
+    test_tuple.h \
+    test_set.h \
+    test_map.h \
+    test_custom.h \

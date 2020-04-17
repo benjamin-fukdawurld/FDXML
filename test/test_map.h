@@ -1,64 +1,61 @@
-#ifndef TEST_MAP_H
-#define TEST_MAP_H
+#ifndef FDXML_TEST_MAP_H
+#define FDXML_TEST_MAP_H
 
 #include <gtest/gtest.h>
 
-#include <FDJson/Json_fwd.h>
-#include <FDJson/Json_allocator.h>
-#include <FDJson/Json_map.h>
-#include <FDJson/JsonSerializer.h>
+#include <FDXml/Xml_fwd.h>
+#include <FDXml/XmlSerializer.h>
 
-TEST(TestMap, TestSerializeMap)
+TEST(TestXmlMap, TestSerializeMap)
 {
     {
         std::map<int, int> m = {{0, 4}, {1, 3}, {2, 2}, {3, 1}, {4, 0}};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(m);
-        ASSERT_TRUE(val.IsArray());
-        ASSERT_EQ(val.Size(), m.size());
-        for(auto it = val.Begin(), end = val.End(); it != end; ++it)
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(m);
+        ASSERT_TRUE(val.isArray());
+        ASSERT_EQ(val.size(), m.size());
+        for(auto it = val.begin(), end = val.end(); it != end; ++it)
         {
-            ASSERT_TRUE(it->IsObject());
-            ASSERT_TRUE(it->HasMember("key"));
-            ASSERT_TRUE(it->HasMember("value"));
-            ASSERT_TRUE((*it)["key"].IsInt());
-            ASSERT_TRUE((*it)["value"].IsInt());
-            auto key_it = m.find((*it)["key"].GetInt());
+            ASSERT_TRUE(it->isObject());
+            ASSERT_TRUE(it->hasChildNode("key"));
+            ASSERT_TRUE(it->hasChildNode("value"));
+            ASSERT_TRUE((*it)["key"].isInt());
+            ASSERT_TRUE((*it)["value"].isInt());
+            auto key_it = m.find(std::stoi(std::string((*it)["key"].getValue())));
             ASSERT_NE(key_it, m.end());
-            ASSERT_EQ(key_it->second, (*it)["value"].GetInt());
+            ASSERT_EQ(std::to_string(key_it->second), (*it)["value"].getValue());
         }
     }
 
-    {
+    /*{
         std::map<std::string, int> m = {{"fezgve", 4}, {"vzseg", 3}, {"fzsgfrze", 2}, {"3zbverza", 1}};
-        FDJson::Serializer::Value val = FDJson::Serializer::serialize(m);
-        ASSERT_TRUE(val.IsObject());
-        for(auto it = val.MemberBegin(), end = val.MemberEnd(); it != end; ++it)
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(m);
+        ASSERT_TRUE(val.isObject());
+        for(auto it = val.begin(), end = val.end(); it != end; ++it)
         {
-            ASSERT_TRUE(it->name.IsString());
-            ASSERT_TRUE(it->value.IsInt());
-            auto key_it = m.find(it->name.GetString());
+            ASSERT_TRUE(it->isInt());
+            auto key_it = m.find(std::string(it->getName()));
             ASSERT_NE(key_it, m.end());
-            ASSERT_EQ(key_it->second, it->value.GetInt());
+            ASSERT_EQ(std::to_string(key_it->second), it->getValue());
         }
-    }
+    }*/
 }
 
-TEST(TestMap, TestUnserializeMap)
+/*TEST(TestXmlMap, TestUnserializeMap)
 {
     {
         const std::map<int, int> in = {{0, 4}, {1, 3}, {2, 2}, {3, 1}, {4, 0}};
         std::map<int, int> m;
-        FDJson::Serializer::Value val(rapidjson::kArrayType);
+        FDXml::Serializer::Value val("array");
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
-            FDJson::Serializer::Value cell(rapidjson::kObjectType);
-            cell.AddMember("key", FDJson::Serializer::Value(it->first), FDJson::Json_helper::allocator);
-            cell.AddMember("value", FDJson::Serializer::Value(it->second), FDJson::Json_helper::allocator);
-            val.PushBack(cell, FDJson::Json_helper::allocator);
+            FDXml::Serializer::Value cell(map);
+            cell.AddMember("key", FDXml::Serializer::Value(it->first), FDXml::FDJson::Serializer::getInstance().getAllocator());
+            cell.AddMember("value", FDXml::Serializer::Value(it->second), FDXml::FDJson::Serializer::getInstance().getAllocator());
+            val.PushBack(cell, FDXml::FDJson::Serializer::getInstance().getAllocator());
         }
 
         std::string err;
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, m, &err));
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, m, &err));
         ASSERT_EQ(in.size(), m.size());
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
@@ -71,15 +68,15 @@ TEST(TestMap, TestUnserializeMap)
     {
         const std::map<std::string, int> in = {{"fezgve", 4}, {"vzseg", 3}, {"fzsgfrze", 2}, {"3zbverza", 1}};
         std::map<std::string, int> m;
-        FDJson::Serializer::Value val(rapidjson::kObjectType);
+        FDXml::Serializer::Value val(map);
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
-            val.AddMember(FDJson::Serializer::Value(it->first.c_str(), FDJson::Json_helper::allocator),
-                          FDJson::Serializer::Value(it->second), FDJson::Json_helper::allocator);
+            val.AddMember(FDXml::Serializer::Value(it->first.c_str(), FDXml::FDJson::Serializer::getInstance().getAllocator()),
+                          FDXml::Serializer::Value(it->second), FDXml::FDJson::Serializer::getInstance().getAllocator());
         }
         std::string err;
 
-        ASSERT_TRUE(FDJson::Serializer::unserialize(val, m, &err));
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, m, &err));
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
             auto key_it = m.find(it->first);
@@ -87,6 +84,6 @@ TEST(TestMap, TestUnserializeMap)
             ASSERT_EQ(key_it->second, it->second);
         }
     }
-}
+}*/
 
-#endif // TEST_MAP_H
+#endif // FDXML_TEST_MAP_H

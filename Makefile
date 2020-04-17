@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I. -Iinclude -I../FDSerialize/include -I../thirdparty -I../../../Qt/5.13.2/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -Iinclude -I../FDSerialize/include -I../FDCore/include -I../thirdparty -I../../../Qt/5.13.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/benjamin/Qt/5.13.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = FDXml1.0.0
 DISTDIR = /home/benjamin/dev/FanatikDevelopment/build/obj/FDXml/FDXml1.0.0
 LINK          = g++
 LFLAGS        = -shared -Wl,-soname,libFDXml.so.1
-LIBS          = $(SUBLIBS) -Lbuild/lib   
+LIBS          = $(SUBLIBS) -L../build/lib -lFDCore   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -54,10 +54,16 @@ OBJECTS_DIR   = ../build/obj/FDXml/
 
 SOURCES       = src/Xml_utils.cpp \
 		src/XmlValue.cpp \
-		src/XmlAttribute.cpp 
+		src/XmlAttribute.cpp \
+		src/XmlNodeIterator.cpp \
+		src/XmlAttributeIterator.cpp \
+		src/XmlSerializer.cpp 
 OBJECTS       = ../build/obj/FDXml/Xml_utils.o \
 		../build/obj/FDXml/XmlValue.o \
-		../build/obj/FDXml/XmlAttribute.o
+		../build/obj/FDXml/XmlAttribute.o \
+		../build/obj/FDXml/XmlNodeIterator.o \
+		../build/obj/FDXml/XmlAttributeIterator.o \
+		../build/obj/FDXml/XmlSerializer.o
 DIST          = ../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/common/unix.conf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/common/linux.conf \
@@ -249,7 +255,6 @@ DIST          = ../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/features/yacc.prf \
 		../../../Qt/5.13.2/gcc_64/mkspecs/features/lex.prf \
 		FDXml.pro include/FDXml/FDXml.h \
-		include/FDXml/Xml_allocator.h \
 		include/FDXml/Xml_array.h \
 		include/FDXml/Xml_array_fwd.h \
 		include/FDXml/Xml_fwd.h \
@@ -259,14 +264,21 @@ DIST          = ../../../Qt/5.13.2/gcc_64/mkspecs/features/spec_pre.prf \
 		include/FDXml/Xml_map_fwd.h \
 		include/FDXml/Xml_primitive.h \
 		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/Xml_tuple.h \
+		include/FDXml/Xml_tuple_fwd.h \
 		include/FDXml/Xml_set.h \
 		include/FDXml/Xml_set_fwd.h \
 		include/FDXml/Xml_utils.h \
 		include/FDXml/XmlSerializer.h \
 		include/FDXml/XmlValue.h \
-		include/FDXml/XmlAttribute.h src/Xml_utils.cpp \
+		include/FDXml/XmlAttribute.h \
+		include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlAttributeIterator.h src/Xml_utils.cpp \
 		src/XmlValue.cpp \
-		src/XmlAttribute.cpp
+		src/XmlAttribute.cpp \
+		src/XmlNodeIterator.cpp \
+		src/XmlAttributeIterator.cpp \
+		src/XmlSerializer.cpp
 QMAKE_TARGET  = FDXml
 DESTDIR       = ../build/lib/
 TARGET        = libFDXml.so.1.0.0
@@ -733,31 +745,96 @@ compiler_clean:
 
 ../build/obj/FDXml/Xml_utils.o: src/Xml_utils.cpp include/FDXml/Xml_utils.h \
 		include/FDXml/Xml_primitive.h \
+		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/XmlAttribute.h \
+		include/FDXml/FDXml.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
 		include/FDXml/XmlValue.h \
-		include/FDXml/XmlAttribute.h \
-		include/FDXml/Xml_allocator.h \
-		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlAttributeIterator.h \
 		include/FDXml/Xml_array.h \
 		include/FDXml/Xml_array_fwd.h \
 		include/FDXml/Xml_list.h \
 		include/FDXml/Xml_list_fwd.h \
+		include/FDXml/Xml_tuple.h \
+		include/FDXml/Xml_tuple_fwd.h \
 		include/FDXml/Xml_set.h \
 		include/FDXml/Xml_set_fwd.h \
 		include/FDXml/Xml_map.h \
-		include/FDXml/Xml_map_fwd.h
+		include/FDXml/Xml_map_fwd.h \
+		include/FDXml/XmlSerializer.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
+		include/FDXml/Xml_fwd.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/Xml_utils.o src/Xml_utils.cpp
 
 ../build/obj/FDXml/XmlValue.o: src/XmlValue.cpp include/FDXml/XmlValue.h \
 		include/FDXml/XmlAttribute.h \
+		include/FDXml/FDXml.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
-		include/FDXml/Xml_allocator.h
+		include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlAttributeIterator.h \
+		include/FDXml/XmlSerializer.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
+		include/FDXml/Xml_fwd.h \
+		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/Xml_array_fwd.h \
+		include/FDXml/Xml_list_fwd.h \
+		include/FDXml/Xml_tuple_fwd.h \
+		include/FDXml/Xml_set_fwd.h \
+		include/FDXml/Xml_map_fwd.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlValue.o src/XmlValue.cpp
 
 ../build/obj/FDXml/XmlAttribute.o: src/XmlAttribute.cpp include/FDXml/XmlAttribute.h \
+		include/FDXml/FDXml.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
-		include/FDXml/Xml_allocator.h
+		include/FDXml/XmlSerializer.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
+		include/FDXml/Xml_fwd.h \
+		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/Xml_array_fwd.h \
+		include/FDXml/Xml_list_fwd.h \
+		include/FDXml/Xml_tuple_fwd.h \
+		include/FDXml/Xml_set_fwd.h \
+		include/FDXml/Xml_map_fwd.h \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlAttributeIterator.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlAttribute.o src/XmlAttribute.cpp
+
+../build/obj/FDXml/XmlNodeIterator.o: src/XmlNodeIterator.cpp include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlAttribute.h \
+		include/FDXml/FDXml.h \
+		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/XmlAttributeIterator.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlNodeIterator.o src/XmlNodeIterator.cpp
+
+../build/obj/FDXml/XmlAttributeIterator.o: src/XmlAttributeIterator.cpp include/FDXml/XmlAttributeIterator.h \
+		include/FDXml/XmlAttribute.h \
+		include/FDXml/FDXml.h \
+		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlNodeIterator.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlAttributeIterator.o src/XmlAttributeIterator.cpp
+
+../build/obj/FDXml/XmlSerializer.o: src/XmlSerializer.cpp include/FDXml/XmlSerializer.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
+		include/FDXml/Xml_fwd.h \
+		include/FDXml/FDXml.h \
+		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/Xml_primitive_fwd.h \
+		include/FDXml/Xml_array_fwd.h \
+		include/FDXml/Xml_list_fwd.h \
+		include/FDXml/Xml_tuple_fwd.h \
+		include/FDXml/Xml_set_fwd.h \
+		include/FDXml/Xml_map_fwd.h \
+		include/FDXml/XmlValue.h \
+		include/FDXml/XmlAttribute.h \
+		include/FDXml/XmlNodeIterator.h \
+		include/FDXml/XmlAttributeIterator.h \
+		../FDCore/include/FDCore/FileUtils.h \
+		../thirdparty/rapidxml/rapidxml_print.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlSerializer.o src/XmlSerializer.cpp
 
 ####### Install
 

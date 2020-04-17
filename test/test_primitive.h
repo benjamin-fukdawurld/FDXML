@@ -1,16 +1,17 @@
-#ifndef TEST_PRIMITIVE_H
-#define TEST_PRIMITIVE_H
+#ifndef FDXML_TEST_PRIMITIVE_H
+#define FDXML_TEST_PRIMITIVE_H
 
 #include <gtest/gtest.h>
 
+#include <FDXml/Xml_primitive_fwd.h>
 #include <FDXml/XmlSerializer.h>
 #include <FDXml/Xml_primitive.h>
 
-TEST(TestPrimitive, TestSerializeText)
+TEST(TestXmlPrimitive, TestSerializeText)
 {
     { // Char
         char c = 'A';
-        FDXml::Serializer::Value val = FDXml::Serializer::serialize(c);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(c);
         FDXml::XmlAttribute attr = val->first_attribute("value", 5);
         ASSERT_TRUE(val);
         ASSERT_TRUE(attr);
@@ -23,7 +24,7 @@ TEST(TestPrimitive, TestSerializeText)
     { // C String
         const char *cstr = "this is a text string";
         size_t len = strlen(cstr);
-        FDXml::Serializer::Value val = FDXml::Serializer::serialize(cstr);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(cstr);
         FDXml::XmlAttribute attr = val->first_attribute("value", 5);
         ASSERT_TRUE(val);
         ASSERT_TRUE(attr);
@@ -35,7 +36,7 @@ TEST(TestPrimitive, TestSerializeText)
 
     { // String
         std::string str = "this is a text string";
-        FDXml::Serializer::Value val = FDXml::Serializer::serialize(str);
+        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(str);
         FDXml::XmlAttribute attr = val->first_attribute("value", 5);
         ASSERT_TRUE(val);
         ASSERT_TRUE(attr);
@@ -46,63 +47,63 @@ TEST(TestPrimitive, TestSerializeText)
     }
 }
 
-TEST(TestPrimitive, TestUnserializeText)
+TEST(TestXmlPrimitive, TestUnserializeText)
 {
     { // Char
         char c = '\0';
-        FDXml::Serializer::Value val = FDXml::Xml_helper::allocator.allocate_node(rapidxml::node_element, "char", nullptr, 4, 0);
+        FDXml::XmlValue val("char");
         val.setAttribute("value", "A");
         std::string err;
-        ASSERT_TRUE(val.isChar());
-        ASSERT_TRUE(FDXml::Serializer::unserialize(val, c, &err)) << err;
+        ASSERT_TRUE(val.isChar()) << val.getNodeType();
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, c, &err)) << err;
         ASSERT_EQ('A', c);
     }
 
     { // String
         const char *in = "test string";
         std::string str;
-        FDXml::Serializer::Value val = FDXml::Xml_helper::allocator.allocate_node(rapidxml::node_element, "str", nullptr, 3, 0);
+        FDXml::Serializer::Value val("str");
         val.setAttribute("value", in);
         std::string err;
         ASSERT_TRUE(val.isString());
-        ASSERT_TRUE(FDXml::Serializer::unserialize(val, str, &err)) << err;
+        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, str, &err)) << err;
         ASSERT_EQ(strlen(in), str.size());
         ASSERT_STREQ(in, str.c_str());
     }
 }
 
-TEST(TestPrimitive, TestSerializeBoolean)
+TEST(TestXmlPrimitive, TestSerializeBoolean)
 {
     bool b = true;
-    FDXml::Serializer::Value val = FDXml::Serializer::serialize(b);
+    FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(b);
     FDXml::XmlAttribute attr = val.getAttribute("value");
     ASSERT_STREQ(attr->value(), "true");
 }
 
-TEST(TestPrimitive, TestUnserializeBoolean)
+TEST(TestXmlPrimitive, TestUnserializeBoolean)
 {
     bool b = false;
     FDXml::Serializer::Value val("bool");
     val.setAttribute("value", "true");
     std::string err;
     ASSERT_TRUE(val.isBool());
-    ASSERT_TRUE(FDXml::Serializer::unserialize(val, b, &err)) << err;
+    ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, b, &err)) << err;
     ASSERT_TRUE(b);
 }
 
-TEST(TestPrimitive, TestSerializeInteger)
+TEST(TestXmlPrimitive, TestSerializeInteger)
 {
     { // Int 16 & Uint 16
         {
             int16_t i = -1564;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(i);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(i);
             ASSERT_TRUE(val.isInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(i));
         }
 
         {
             uint16_t u = 26116u;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(u);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(u);
             ASSERT_TRUE(val.isUInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(u));
         }
@@ -111,14 +112,14 @@ TEST(TestPrimitive, TestSerializeInteger)
     { // Int 32 & Uint 32
         {
             int32_t i = 6496461;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(i);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(i);
             ASSERT_TRUE(val.isInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(i));
         }
 
         {
             uint32_t u = 646486432u;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(u);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(u);
             ASSERT_TRUE(val.isUInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(u));
         }
@@ -127,36 +128,36 @@ TEST(TestPrimitive, TestSerializeInteger)
     { // Int 64 & Uint 64
         {
             int64_t i = 56148646;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(i);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(i);
             ASSERT_TRUE(val.isInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(i));
         }
 
         {
             uint64_t u = 54646131564u;
-            FDXml::Serializer::Value val = FDXml::Serializer::serialize(u);
+            FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(u);
             ASSERT_TRUE(val.isUInt());
             EXPECT_EQ(val.getAttribute("value").getValue(), std::to_string(u));
         }
     }
 }
 
-/*TEST(TestPrimitive, TestUnserializeInteger)
+TEST(TestXmlPrimitive, TestUnserializeInteger)
 {
     { // Int 16 & Uint 16
         {
             int16_t i;
-            FDXml::Serializer::Value val(-1564);
+            FDXml::Serializer::Value val("int", "int", "-1564");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, i, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, i, &err)) << err;
             EXPECT_EQ(-1564, i);
         }
 
         {
             uint16_t u;
-            FDXml::Serializer::Value val(26116u);
+            FDXml::Serializer::Value val("int", "int", "26116");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, u, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, u, &err)) << err;
             EXPECT_EQ(26116u, u);
         }
     }
@@ -164,17 +165,17 @@ TEST(TestPrimitive, TestSerializeInteger)
     { // Int 32 & Uint 32
         {
             int32_t i;
-            FDXml::Serializer::Value val(6496461);
+            FDXml::Serializer::Value val("int", "int", "6496461");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, i, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, i, &err)) << err;
             EXPECT_EQ(6496461, i);
         }
 
         {
             uint32_t u;
-            FDXml::Serializer::Value val(646486432u);
+            FDXml::Serializer::Value val("int", "int", "646486432");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, u, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, u, &err)) << err;
             EXPECT_EQ(646486432u, u);
         }
     }
@@ -182,35 +183,35 @@ TEST(TestPrimitive, TestSerializeInteger)
     { // Int 64 & Uint 64
         {
             int64_t i;
-            FDXml::Serializer::Value val(56148646);
+            FDXml::Serializer::Value val("int", "int", "56148646");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, i, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, i, &err)) << err;
             EXPECT_EQ(56148646, i);
         }
 
         {
             uint64_t u;
-            FDXml::Serializer::Value val(54646131564u);
+            FDXml::Serializer::Value val("int", "int", "54646131564");
             std::string err;
-            ASSERT_TRUE(FDXml::Serializer::unserialize(val, u, &err)) << err;
+            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, u, &err)) << err;
             EXPECT_EQ(54646131564u, u);
         }
     }
 }
 
-TEST(TestPrimitive, TestSerializeNull)
+TEST(TestXmlPrimitive, TestSerializeNull)
 {
-    FDXml::Serializer::Value val = FDXml::Serializer::serialize(nullptr);
-    ASSERT_TRUE(val.IsNull());
+    FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(nullptr);
+    ASSERT_TRUE(val.isNull());
 }
 
-TEST(TestPrimitive, TestUnserializeNull)
+TEST(TestXmlPrimitive, TestUnserializeNull)
 {
     std::optional<bool> b;
-    FDXml::Serializer::Value val(rapidjson::kNullType);
+    FDXml::Serializer::Value val("bool");
     std::string err;
-    ASSERT_TRUE(FDXml::Serializer::unserialize(val, b, &err)) << err;
+    ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, b, &err)) << err;
     ASSERT_FALSE(b.has_value());
-}*/
+}
 
-#endif // TEST_PRIMITIVE_H
+#endif // FDXML_TEST_PRIMITIVE_H

@@ -6,40 +6,33 @@
 #include <type_traits>
 #include <optional>
 
-#include <FDXml/XmlAttribute.h>
-#include <FDXml/XmlValue.h>
+#include <FDXml/FDXml.h>
 
 namespace FDXml
 {
-    template<typename T>
-    bool unserialize_attribute(const XmlAttribute &attr, std::optional<T> &opt, std::string *err = nullptr);
-
-    XmlAttribute serialize_attribute(const char *name, std::nullptr_t);
-
-    XmlAttribute serialize_attribute(const char *name, const char c);
-
-    bool unserialize_attribute(const XmlAttribute &attr, char &c, std::string *err = nullptr);
-
-    XmlAttribute serialize_attribute(const char *name, const char *c);
-
-    XmlAttribute serialize_attribute(const char *name, std::string &&c);
-
-    XmlAttribute serialize_attribute(const char *name, const std::string &c);
-
-    bool unserialize_attribute(const XmlAttribute &attr, std::string &c, std::string *err = nullptr);
-
-    XmlAttribute serialize_attribute(const char *name, const bool b);
-
-    bool unserialize_attribute(const XmlAttribute &attr, bool &c, std::string *err = nullptr);
+    class XmlAttribute;
+    class XmlValue;
 
     template<typename T>
-    std::enable_if_t<std::is_same<T, int16_t>::value
-                         || std::is_same<T, int32_t>::value
-                         || std::is_same<T, int64_t>::value
-                         || std::is_same<T, uint16_t>::value
-                         || std::is_same<T, uint32_t>::value
-                         || std::is_same<T, uint64_t>::value,
-    XmlAttribute> serialize_attribute(const char *name, T &&i);
+    bool unserialize_attribute(const XmlAttribute &attr, std::optional<T> &opt, Serializer &serializer, std::string *err = nullptr);
+
+    XmlAttribute serialize_attribute(const char *name, std::nullptr_t, Serializer &serializer);
+
+    XmlAttribute serialize_attribute(const char *name, const char c, Serializer &serializer);
+
+    bool unserialize_attribute(const XmlAttribute &attr, char &c, Serializer &serializer, std::string *err = nullptr);
+
+    XmlAttribute serialize_attribute(const char *name, const char *c, Serializer &serializer);
+
+    XmlAttribute serialize_attribute(const char *name, std::string &&c, Serializer &serializer);
+
+    XmlAttribute serialize_attribute(const char *name, const std::string &c, Serializer &serializer);
+
+    bool unserialize_attribute(const XmlAttribute &attr, std::string &c, Serializer &serializer, std::string *err = nullptr);
+
+    XmlAttribute serialize_attribute(const char *name, const bool b, Serializer &serializer);
+
+    bool unserialize_attribute(const XmlAttribute &attr, bool &c, Serializer &serializer, std::string *err = nullptr);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -48,39 +41,51 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    XmlAttribute> serialize_attribute(const char *name, const T &i);
+    XmlAttribute> serialize_attribute(const char *name, T &&i, Serializer &serializer);
 
-    bool unserialize_attribute(const XmlAttribute &attr, int64_t &i, std::string *err = nullptr);
-    bool unserialize_attribute(const XmlAttribute &attr, uint64_t &i, std::string *err = nullptr);
+    template<typename T>
+    std::enable_if_t<std::is_same<T, int16_t>::value
+                         || std::is_same<T, int32_t>::value
+                         || std::is_same<T, int64_t>::value
+                         || std::is_same<T, uint16_t>::value
+                         || std::is_same<T, uint32_t>::value
+                         || std::is_same<T, uint64_t>::value,
+    XmlAttribute> serialize_attribute(const char *name, const T &i, Serializer &serializer);
+
+    bool unserialize_attribute(const XmlAttribute &attr, int64_t &i, Serializer &serializer, std::string *err = nullptr);
+    bool unserialize_attribute(const XmlAttribute &attr, uint64_t &i, Serializer &serializer, std::string *err = nullptr);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value || std::is_same<T, int32_t>::value
                 || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value,
-    bool> unserialize_attribute(const XmlAttribute &attr, T &i, std::string *err = nullptr);
+    bool> unserialize_attribute(const XmlAttribute &attr, T &i, Serializer &serializer, std::string *err = nullptr);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlAttribute > serialize_attribute(const char *name, T &&i);
+    XmlAttribute > serialize_attribute(const char *name, T &&i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    XmlAttribute > serialize_attribute(const char *name, const T &i);
+    XmlAttribute > serialize_attribute(const char *name, const T &i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value || std::is_same<T, double>::value,
-    bool> unserialize_attribute(const XmlAttribute &attr, float &f, std::string *err = nullptr);
+    bool> unserialize_attribute(const XmlAttribute &attr, T &f, Serializer &serializer, std::string *err = nullptr);
 
-    XmlValue serialize(const char c);
+    template<typename T>
+    bool unserialize(const XmlValue &val, std::optional<T> &opt, Serializer &serializer, std::string *err = nullptr);
 
-    FDXml::XmlValue serialize(const char *c);
+    XmlValue serialize(const char c, Serializer &serializer);
 
-    FDXml::XmlValue serialize(std::string &&c);
+    XmlValue serialize(const char *c, Serializer &serializer);
 
-    FDXml::XmlValue serialize(const std::string &c);
+    XmlValue serialize(std::string &&c, Serializer &serializer);
 
-    FDXml::XmlValue serialize(const bool b);
+    XmlValue serialize(const std::string &c, Serializer &serializer);
+
+    XmlValue serialize(const bool b, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -89,7 +94,7 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    FDXml::XmlValue > serialize(T &&i);
+    XmlValue > serialize(T &&i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, int16_t>::value
@@ -98,17 +103,17 @@ namespace FDXml
                          || std::is_same<T, uint16_t>::value
                          || std::is_same<T, uint32_t>::value
                          || std::is_same<T, uint64_t>::value,
-    FDXml::XmlValue > serialize(const T &i);
+    XmlValue > serialize(const T &i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    FDXml::XmlValue > serialize(T &&i);
+    XmlValue > serialize(T &&i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, float>::value
                   || std::is_same<T, double>::value,
-    FDXml::XmlValue > serialize(const T &i);
+    XmlValue > serialize(const T &i, Serializer &serializer);
 
     template<typename T>
     std::enable_if_t<std::is_same<T, bool>::value
@@ -122,7 +127,7 @@ namespace FDXml
                         || std::is_same<T, uint64_t>::value
                         ||std::is_same<T, float>::value
                         || std::is_same<T, double>::value,
-    bool> unserialize(const FDXml::XmlValue &val, T &f, std::string *err = nullptr);
+    bool> unserialize(const XmlValue &val, T &f, Serializer &serializer, std::string *err = nullptr);
 }
 
 #endif // XML_PRIMITIVE_FWD_H
