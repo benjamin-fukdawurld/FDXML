@@ -9,18 +9,34 @@ namespace FDXml
 {
     class XmlAttribute
     {
+        public:
+            typedef rapidxml::memory_pool<> Allocator;
+
         protected:
             rapidxml::xml_attribute<> *m_attr;
+            Serializer &m_serializer;
 
         public:
-            XmlAttribute();
+            XmlAttribute(Serializer &serializer);
 
-            XmlAttribute(rapidxml::xml_attribute<> *attr);
-
-            XmlAttribute(const std::string_view name);
+            XmlAttribute(rapidxml::xml_attribute<> *attr,
+                         Serializer &serializer);
 
             XmlAttribute(const std::string_view name,
-                         const std::string_view value);
+                         Serializer &serializer);
+
+            XmlAttribute(const std::string_view name,
+                         const std::string_view value,
+                         Serializer &serializer);
+
+            XmlAttribute &operator=(rapidxml::xml_attribute<> *a)
+            {
+                m_attr = a;
+                return *this;
+            }
+
+            Serializer &getSerializer() { return m_serializer; }
+            const Serializer &getSerializer() const { return m_serializer; }
 
             operator bool() const { return m_attr != nullptr; }
 

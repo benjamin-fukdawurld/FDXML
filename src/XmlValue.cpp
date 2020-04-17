@@ -18,27 +18,30 @@ static bool isObjectType(const std::string_view type)
     return std::find(types.begin(), types.end(), type.data()) == types.end();
 }
 
-FDXml::XmlValue::XmlValue(rapidxml::xml_node<> *node):
-    m_node(node)
+FDXml::XmlValue::XmlValue(Serializer &serializer):
+    m_node(nullptr),
+    m_serializer(serializer)
 {}
 
-FDXml::XmlValue::XmlValue():
-    m_node(nullptr)
+FDXml::XmlValue::XmlValue(rapidxml::xml_node<> *node, Serializer &serializer):
+    m_node(node),
+    m_serializer(serializer)
 {}
 
-FDXml::XmlValue::XmlValue(const std::string_view name):
-    XmlValue(name, name)
+FDXml::XmlValue::XmlValue(const std::string_view name, Serializer &serializer):
+    XmlValue(name, name, serializer)
 {}
 
-FDXml::XmlValue::XmlValue(const std::string_view name, const std::string_view type):
-    XmlValue(name, type, nullptr)
+FDXml::XmlValue::XmlValue(const std::string_view name, const std::string_view type, Serializer &serializer):
+    XmlValue(name, type, nullptr, serializer)
 {}
 
-FDXml::XmlValue::XmlValue(const std::string_view name, const std::string_view type, const std::string_view value)
+FDXml::XmlValue::XmlValue(const std::string_view name, const std::string_view type, const std::string_view value, Serializer &serializer):
+    XmlValue(serializer)
 {
-    m_node = FDXml::Serializer::getInstance().getAllocator().allocate_node(rapidxml::node_element,
-                                                        FDXml::Serializer::getInstance().getAllocator().allocate_string(name.data(), name.size() + 1),
-                                                        nullptr, name.size(), 0);
+    m_node = serializer.getAllocator().allocate_node(rapidxml::node_element,
+        m_serializer.getAllocator().allocate_string(name.data(), name.size() + 1),
+        nullptr, name.size(), 0);
 
     if(type.data() == nullptr)
         setAttribute("node-data-type", "undefined");
@@ -62,134 +65,134 @@ FDXml::XmlValue::XmlValue(const std::string_view name, const std::string_view ty
 
 FDXml::XmlValue::iterator FDXml::XmlValue::begin()
 {
-    return XmlNodeIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::iterator FDXml::XmlValue::end()
 {
-    return XmlNodeIterator(*this, XmlValue());
+    return XmlNodeIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::const_iterator FDXml::XmlValue::begin() const
 {
-    return XmlNodeIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::const_iterator FDXml::XmlValue::end() const
 {
-    return XmlNodeIterator(*this, XmlValue());
+    return XmlNodeIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::const_iterator FDXml::XmlValue::cbegin() const
 {
-    return XmlNodeIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::const_iterator FDXml::XmlValue::cend() const
 {
-    return XmlNodeIterator(*this, XmlValue());
+    return XmlNodeIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::reverse_iterator FDXml::XmlValue::rbegin()
 {
-    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::reverse_iterator FDXml::XmlValue::rend()
 {
-    return XmlNodeReverseIterator(*this, XmlValue());
+    return XmlNodeReverseIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_iterator FDXml::XmlValue::rbegin() const
 {
-    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_iterator FDXml::XmlValue::rend() const
 {
-    return XmlNodeReverseIterator(*this, XmlValue());
+    return XmlNodeReverseIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_iterator FDXml::XmlValue::crbegin() const
 {
-    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node()));
+    return XmlNodeReverseIterator(*this, XmlValue(m_node->first_node(), m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_iterator FDXml::XmlValue::crend() const
 {
-    return XmlNodeReverseIterator(*this, XmlValue());
+    return XmlNodeReverseIterator(*this, XmlValue(m_serializer));
 }
 
 FDXml::XmlValue::attribute_iterator FDXml::XmlValue::attribute_begin()
 {
-    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute()));
+    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::attribute_iterator FDXml::XmlValue::attribute_end()
 {
-    return XmlAttributeIterator(*this, XmlAttribute());
+    return XmlAttributeIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue::const_attribute_iterator FDXml::XmlValue::attribute_begin() const
 {
-    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute()));
+    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::const_attribute_iterator FDXml::XmlValue::attribute_end() const
 {
-    return XmlAttributeIterator(*this, XmlAttribute());
+    return XmlAttributeIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue::const_attribute_iterator FDXml::XmlValue::attribute_cbegin() const
 {
-    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute()));
+    return XmlAttributeIterator(*this, XmlAttribute(m_node->first_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::const_attribute_iterator FDXml::XmlValue::attribute_cend() const
 {
-    return XmlAttributeIterator(*this, XmlAttribute());
+    return XmlAttributeIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue::reverse_attribute_iterator FDXml::XmlValue::attribute_rbegin()
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute()));
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::reverse_attribute_iterator FDXml::XmlValue::attribute_rend()
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute());
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_attribute_iterator FDXml::XmlValue::attribute_rbegin() const
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute()));
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_attribute_iterator FDXml::XmlValue::attribute_rend() const
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute());
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_attribute_iterator FDXml::XmlValue::attribute_crbegin() const
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute()));
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_node->last_attribute(), m_serializer));
 }
 
 FDXml::XmlValue::const_reverse_attribute_iterator FDXml::XmlValue::attribute_crend() const
 {
-    return XmlAttributeReverseIterator(*this, XmlAttribute());
+    return XmlAttributeReverseIterator(*this, XmlAttribute(m_serializer));
 }
 
 FDXml::XmlValue FDXml::XmlValue::getChildNode(const std::string_view name)
 {
     assert(m_node != nullptr);
-    return m_node->first_node(name.data(), name.size());
+    return { m_node->first_node(name.data(), name.size()), m_serializer};
 }
 
 const FDXml::XmlValue FDXml::XmlValue::getChildNode(const std::string_view name) const
 {
     assert(m_node != nullptr);
-    return m_node->first_node(name.data(), name.size());
+    return { m_node->first_node(name.data(), name.size()), m_serializer };
 }
 
 
@@ -230,24 +233,24 @@ FDXml::XmlValue FDXml::XmlValue::operator[](const char *name)
 FDXml::XmlAttribute FDXml::XmlValue::getAttribute(const std::string_view name)
 {
     assert(m_node != nullptr);
-    return m_node->first_attribute(name.data(), name.size());
+    return { m_node->first_attribute(name.data(), name.size()), m_serializer };
 }
 
 const FDXml::XmlAttribute FDXml::XmlValue::getAttribute(const std::string_view name) const
 {
     assert(m_node != nullptr);
-    return m_node->first_attribute(name.data(), name.size());
+    return { m_node->first_attribute(name.data(), name.size()), m_serializer };
 }
 
 void FDXml::XmlValue::setAttribute(const std::string_view name, const std::string_view value)
 {
     assert(m_node != nullptr);
-    XmlAttribute attr = m_node->first_attribute(name.data(), name.size());
+    XmlAttribute attr(m_node->first_attribute(name.data(), name.size()), m_serializer);
     if(attr)
         attr.setValue(value);
     else
     {
-        m_node->append_attribute(XmlAttribute(name, value).get());
+        m_node->append_attribute(XmlAttribute(name, value, m_serializer).get());
     }
 }
 
@@ -255,7 +258,7 @@ void FDXml::XmlValue::setAttribute(FDXml::XmlAttribute attr)
 {
     assert(m_node != nullptr);
     std::string_view name = attr.getName();
-    XmlAttribute current = m_node->first_attribute(name.data(), name.size());
+    XmlAttribute current(m_node->first_attribute(name.data(), name.size()), m_serializer);
     if(current)
         m_node->remove_attribute(current.get());
 
@@ -312,7 +315,7 @@ std::string_view FDXml::XmlValue::getName() const
 
 void FDXml::XmlValue::setName(std::string_view name)
 {
-    return m_node->name(FDXml::Serializer::getInstance().getAllocator().allocate_string(name.data(), name.size() + 1));
+    return m_node->name(m_serializer.getAllocator().allocate_string(name.data(), name.size() + 1));
 }
 
 std::string_view FDXml::XmlValue::getValue() const
@@ -416,7 +419,7 @@ FDXml::XmlValue FDXml::XmlValue::operator[](size_t pos)
     for(size_t i = 0; i < pos && n != nullptr; ++i)
         n = n->next_sibling();
 
-    return FDXml::XmlValue(n);
+    return FDXml::XmlValue(n, m_serializer);
 }
 
 const FDXml::XmlValue FDXml::XmlValue::operator[](size_t pos) const
@@ -427,5 +430,5 @@ const FDXml::XmlValue FDXml::XmlValue::operator[](size_t pos) const
     for(size_t i = 0; i < pos && n != nullptr; ++i)
         n = n->next_sibling();
 
-    return FDXml::XmlValue(n);
+    return FDXml::XmlValue(n, m_serializer);
 }

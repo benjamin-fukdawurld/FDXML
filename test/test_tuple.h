@@ -12,9 +12,10 @@
 
 TEST(TestXmlTuple, TestSerializeTuple)
 {
+    FDXml::Serializer serializer;
     {
         std::tuple<int, float, std::string> t = std::make_tuple(1, 3.14f, "test");
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(t);
+        FDXml::Serializer::Value val = serializer.serialize(t);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 3u);
         EXPECT_TRUE(val[0ul].isInt());
@@ -28,9 +29,10 @@ TEST(TestXmlTuple, TestSerializeTuple)
 
 TEST(TestXmlTuple, TestSerializePair)
 {
+    FDXml::Serializer serializer;
     {
         std::pair<int, std::string> p = std::make_pair(1, "test");
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(p);
+        FDXml::Serializer::Value val = serializer.serialize(p);
         ASSERT_TRUE(val.isObject());
         ASSERT_TRUE(val.hasChildNode("first"));
         EXPECT_TRUE(val["first"].isInt());
@@ -43,14 +45,15 @@ TEST(TestXmlTuple, TestSerializePair)
 
 TEST(TestXmlTuple, TestUnserializePair)
 {
+    FDXml::Serializer serializer;
     {
         std::pair<int, std::string> in = std::make_pair(1, "test");
         std::pair<int, std::string> t;
-        FDXml::XmlValue val("pair");
-        val.addChildNode({ "first", "int", std::to_string(in.first) });
-        val.addChildNode({ "second", "str", in.second });
+        FDXml::XmlValue val("pair", serializer);
+        val.addChildNode({ "first", "int", std::to_string(in.first), serializer });
+        val.addChildNode({ "second", "str", in.second, serializer });
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, &err)) << err;
         EXPECT_EQ(t.first, in.first);
         EXPECT_EQ(t.second, in.second);
     }
@@ -58,15 +61,16 @@ TEST(TestXmlTuple, TestUnserializePair)
 
 TEST(TestXmlTuple, TestUnserializeTuple)
 {
+    FDXml::Serializer serializer;
     {
         std::tuple<int, float, std::string> in = std::make_tuple(1, 3.14f, "test");
         std::tuple<int, float, std::string> t;
-        FDXml::Serializer::Value val("array");
-        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<0>(in)));
-        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<1>(in)));
-        val.addChildNode(FDXml::Serializer::getInstance().serialize(std::get<2>(in)));
+        FDXml::Serializer::Value val("array", serializer);
+        val.addChildNode(serializer.serialize(std::get<0>(in)));
+        val.addChildNode(serializer.serialize(std::get<1>(in)));
+        val.addChildNode(serializer.serialize(std::get<2>(in)));
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, &err)) << err;
         EXPECT_EQ(std::get<0>(t), std::get<0>(in));
         EXPECT_EQ(std::get<1>(t), std::get<1>(in));
         EXPECT_EQ(std::get<2>(t), std::get<2>(in));

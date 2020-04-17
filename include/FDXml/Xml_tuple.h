@@ -19,18 +19,18 @@ namespace FDXml
 
         template<std::size_t I, typename... Args>
         std::enable_if_t<I < sizeof...(Args),
-        void> serialize_tuple(const std::tuple<Args...> &t, XmlValue &val, Serializer &tag)
+        void> serialize_tuple(const std::tuple<Args...> &t, XmlValue &val, Serializer &serializer)
         {
-            val.addChildNode(FDXml::serialize(std::get<I>(t), tag));
-            serialize_tuple<I + 1, Args...>(t, val, tag);
+            val.addChildNode(FDXml::serialize(std::get<I>(t), serializer));
+            serialize_tuple<I + 1, Args...>(t, val, serializer);
         }
 
         template<typename... Args>
-        XmlValue serialize_tuple(const std::tuple<Args...> &t, Serializer &tag)
+        XmlValue serialize_tuple(const std::tuple<Args...> &t, Serializer &serializer)
         {
-            XmlValue val("array");
+            XmlValue val("array", serializer);
 
-            serialize_tuple<0, Args...>(t, val, tag);
+            serialize_tuple<0, Args...>(t, val, serializer);
 
             return val;
         }
@@ -44,7 +44,7 @@ namespace FDXml
 
         template<std::size_t I, typename...Args>
         std::enable_if_t<I < sizeof...(Args),
-        bool> unserialize_tuple(const XmlValue &val, std::tuple<Args...> &t, Serializer &tag, std::string *err)
+        bool> unserialize_tuple(const XmlValue &val, std::tuple<Args...> &t, Serializer &serializer, std::string *err)
         {
             if(!val.isArray())
             {
@@ -66,18 +66,18 @@ namespace FDXml
                 return false;
             }
 
-            return FDXml::unserialize(val[I], std::get<I>(t), tag, err) && unserialize_tuple<I + 1, Args...>(val, t, tag, err);
+            return FDXml::unserialize(val[I], std::get<I>(t), serializer, err) && unserialize_tuple<I + 1, Args...>(val, t, serializer, err);
         }
     }
 
     template<typename First, typename Second>
-    XmlValue serialize(std::pair<First, Second> &&p, Serializer &tag)
+    XmlValue serialize(std::pair<First, Second> &&p, Serializer &serializer)
     {
-        XmlValue val("pair");
-        XmlValue first(FDXml::serialize(p.first, tag));
+        XmlValue val("pair", serializer);
+        XmlValue first(FDXml::serialize(p.first, serializer));
         first.setName("first");
 
-        XmlValue second(FDXml::serialize(p.second, tag));
+        XmlValue second(FDXml::serialize(p.second, serializer));
         second.setName("second");
 
         val.addChildNode(first);
@@ -87,13 +87,13 @@ namespace FDXml
     }
 
     template<typename First, typename Second>
-    XmlValue serialize(const std::pair<First, Second> &p, Serializer &tag)
+    XmlValue serialize(const std::pair<First, Second> &p, Serializer &serializer)
     {
-        XmlValue val("pair");
-        XmlValue first(FDXml::serialize(p.first, tag));
+        XmlValue val("pair", serializer);
+        XmlValue first(FDXml::serialize(p.first, serializer));
         first.setName("first");
 
-        XmlValue second(FDXml::serialize(p.second, tag));
+        XmlValue second(FDXml::serialize(p.second, serializer));
         second.setName("second");
 
         val.addChildNode(first);
@@ -103,7 +103,7 @@ namespace FDXml
     }
 
     template<typename First, typename Second>
-    bool unserialize(const XmlValue &val, std::pair<First, Second> &p, Serializer &tag, std::string *err)
+    bool unserialize(const XmlValue &val, std::pair<First, Second> &p, Serializer &serializer, std::string *err)
     {
         if(!val.isObject())
         {
@@ -135,28 +135,28 @@ namespace FDXml
             return false;
         }
 
-        return unserialize(val["first"], p.first, tag, err) && unserialize(val["second"], p.second, tag, err);
+        return unserialize(val["first"], p.first, serializer, err) && unserialize(val["second"], p.second, serializer, err);
     }
 
     template<typename ...Args>
-    XmlValue serialize(std::tuple<Args...> &&t, Serializer &tag)
+    XmlValue serialize(std::tuple<Args...> &&t, Serializer &serializer)
     {
         using namespace FDXml::internal;
-        return serialize_tuple(t, tag);
+        return serialize_tuple(t, serializer);
     }
 
     template<typename ...Args>
-    XmlValue serialize(const std::tuple<Args...> &t, Serializer &tag)
+    XmlValue serialize(const std::tuple<Args...> &t, Serializer &serializer)
     {
         using namespace FDXml::internal;
-        return serialize_tuple(t, tag);
+        return serialize_tuple(t, serializer);
     }
 
     template<typename...Args>
-    bool unserialize(const XmlValue &val, std::tuple<Args...> &t, Serializer &tag, std::string *err)
+    bool unserialize(const XmlValue &val, std::tuple<Args...> &t, Serializer &serializer, std::string *err)
     {
         using namespace FDXml::internal;
-        return unserialize_tuple(val, t, tag, err);
+        return unserialize_tuple(val, t, serializer, err);
     }
 }
 

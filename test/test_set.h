@@ -8,9 +8,10 @@
 
 TEST(TestXmlSet, TestSerializeSet)
 {
+    FDXml::Serializer serializer;
     {
         const std::unordered_set<int> s = {0, 1, 2, 3};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(s);
+        FDXml::Serializer::Value val = serializer.serialize(s);
 
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), s.size());
@@ -19,7 +20,7 @@ TEST(TestXmlSet, TestSerializeSet)
         {
             int i;
             ASSERT_TRUE(it->isInt());
-            ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(*it, i, &err)) << err;
+            ASSERT_TRUE(serializer.unserialize(*it, i, &err)) << err;
             ASSERT_TRUE(s.find(i) != s.end());
         }
 
@@ -27,7 +28,7 @@ TEST(TestXmlSet, TestSerializeSet)
 
     {
         const std::set<std::string> s = {"faubaf", "azfaezf", "000000", ""};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(s);
+        FDXml::Serializer::Value val = serializer.serialize(s);
 
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), s.size());
@@ -41,13 +42,14 @@ TEST(TestXmlSet, TestSerializeSet)
 
 TEST(TestXmlSet, TestUnserializeSet)
 {
+    FDXml::Serializer serializer;
     {
         const std::unordered_set<int> in = {0, 1, 2, 3};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(in);
+        FDXml::Serializer::Value val = serializer.serialize(in);
         std::unordered_set<int> s;
         std::string err;
 
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, s, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, s, &err)) << err;
         for(int i = 0, i_max = 4; i < i_max; ++i)
         {
             ASSERT_TRUE(s.find(i) != s.end());
@@ -56,11 +58,11 @@ TEST(TestXmlSet, TestUnserializeSet)
 
     {
         const std::set<std::string> in = {"faubaf", "azfaezf", "000000", ""};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(in);
+        FDXml::Serializer::Value val = serializer.serialize(in);
         std::unordered_set<std::string> s;
         std::string err;
 
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, s, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, s, &err)) << err;
         for(auto it = in.begin(), end = in.end(); it != end; ++it)
         {
             ASSERT_TRUE(s.find(*it) != s.end());

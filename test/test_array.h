@@ -9,9 +9,10 @@
 
 TEST(TestXmlArray, TestSerializeStaticArray)
 {
+    FDXml::Serializer serializer;
     { // int[]
         int t[4] = {0, 1, 2, 3};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(t, 4);
+        FDXml::Serializer::Value val = serializer.serialize(t, 4);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 4u);
         for(size_t i = 0, i_max = 4; i < i_max; ++i)
@@ -23,7 +24,7 @@ TEST(TestXmlArray, TestSerializeStaticArray)
 
     { // std::array of string
         std::array<std::string, 6> t = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(t);
+        FDXml::Serializer::Value val = serializer.serialize(t);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 6u);
         for(size_t i = 0, i_max = 6; i < i_max; ++i)
@@ -36,16 +37,17 @@ TEST(TestXmlArray, TestSerializeStaticArray)
 
 TEST(TestXmlArray, TestUnserializeStaticArray)
 {
+    FDXml::Serializer serializer;
     { // int[]
         int t[4];
-        FDXml::Serializer::Value val("array");
+        FDXml::Serializer::Value val("array", serializer);
         val.setAttribute("size", "4");
-        val->append_node(FDXml::XmlValue("int", "int", "0").get());
-        val->append_node(FDXml::XmlValue("int", "int", "1").get());
-        val->append_node(FDXml::XmlValue("int", "int", "2").get());
-        val->append_node(FDXml::XmlValue("int", "int", "3").get());
+        val->append_node(FDXml::XmlValue("int", "int", "0", serializer).get());
+        val->append_node(FDXml::XmlValue("int", "int", "1", serializer).get());
+        val->append_node(FDXml::XmlValue("int", "int", "2", serializer).get());
+        val->append_node(FDXml::XmlValue("int", "int", "3", serializer).get());
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, 4, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, 4, &err)) << err;
         for(int i = 0, i_max = 4; i < i_max; ++i)
         {
             EXPECT_EQ(t[i], i);
@@ -55,12 +57,12 @@ TEST(TestXmlArray, TestUnserializeStaticArray)
     { // std::array of string
         const std::array<std::string, 6> in = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
         std::array<std::string, 6> t;
-        FDXml::Serializer::Value val("array");
+        FDXml::Serializer::Value val("array", serializer);
         for(size_t i = 0, i_max = 6; i < i_max; ++i)
-            val.addChildNode(FDXml::Serializer::Value("str", "str", in[i]));
+            val.addChildNode(FDXml::Serializer::Value("str", "str", in[i], serializer));
 
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, &err)) << err;
         for(size_t i = 0, i_max = 6; i < i_max; ++i)
         {
             EXPECT_EQ(t[i], in[i]);
@@ -71,9 +73,10 @@ TEST(TestXmlArray, TestUnserializeStaticArray)
 
 TEST(TestXmlArray, TestSerializeDynamicArray)
 {
+    FDXml::Serializer serializer;
     { // std::vector of int
         std::vector<int> v = {0, 1, 2, 3};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(v);
+        FDXml::Serializer::Value val = serializer.serialize(v);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 4u);
         size_t i = 0;
@@ -86,7 +89,7 @@ TEST(TestXmlArray, TestSerializeDynamicArray)
 
     { // std::deque of string
         std::deque<std::string> d = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(d);
+        FDXml::Serializer::Value val = serializer.serialize(d);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 6u);
         size_t i = 0;
@@ -100,15 +103,16 @@ TEST(TestXmlArray, TestSerializeDynamicArray)
 
 TEST(TestXmlArray, TestUnserializeDynamicArray)
 {
+    FDXml::Serializer serializer;
     { // std::vector of int
         int t[4];
-        FDXml::Serializer::Value val("array");
-        val.addChildNode({"int", "int", "0"});
-        val.addChildNode({"int", "int", "1"});
-        val.addChildNode({"int", "int", "2"});
-        val.addChildNode({"int", "int", "3"});
+        FDXml::Serializer::Value val("array", serializer);
+        val.addChildNode({"int", "int", "0", serializer});
+        val.addChildNode({"int", "int", "1", serializer});
+        val.addChildNode({"int", "int", "2", serializer});
+        val.addChildNode({"int", "int", "3", serializer});
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, 4, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, 4, &err)) << err;
         for(int i = 0, i_max = 4; i < i_max; ++i)
         {
             EXPECT_EQ(t[i], i);
@@ -118,16 +122,16 @@ TEST(TestXmlArray, TestUnserializeDynamicArray)
     { // std::deque of string
         const std::array<std::string, 6> in = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
         std::deque<std::string> t;
-        FDXml::Serializer::Value val("array");
-        val.addChildNode({"str", "str", in[0]});
-        val.addChildNode({"str", "str", in[1]});
-        val.addChildNode({"str", "str", in[2]});
-        val.addChildNode({"str", "str", in[3]});
-        val.addChildNode({"str", "str", in[4]});
-        val.addChildNode({"str", "str", in[5]});
+        FDXml::Serializer::Value val("array", serializer);
+        val.addChildNode({"str", "str", in[0], serializer});
+        val.addChildNode({"str", "str", in[1], serializer});
+        val.addChildNode({"str", "str", in[2], serializer});
+        val.addChildNode({"str", "str", in[3], serializer});
+        val.addChildNode({"str", "str", in[4], serializer});
+        val.addChildNode({"str", "str", in[5], serializer});
 
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, t, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, t, &err)) << err;
         for(size_t i = 0, i_max = 6; i < i_max; ++i)
         {
             EXPECT_EQ(t[i], in[i]);

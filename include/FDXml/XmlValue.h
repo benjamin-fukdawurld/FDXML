@@ -26,23 +26,38 @@ namespace FDXml
             typedef const XmlAttributeIterator const_attribute_iterator;
             typedef XmlAttributeReverseIterator reverse_attribute_iterator;
             typedef const XmlAttributeReverseIterator const_reverse_attribute_iterator;
+            typedef rapidxml::memory_pool<> Allocator;
 
         protected:
             rapidxml::xml_node<> *m_node;
+            Serializer &m_serializer;
 
         public:
-            XmlValue();
+            XmlValue(Serializer &serializer);
 
-            XmlValue(rapidxml::xml_node<> *node);
-
-            XmlValue(const std::string_view name);
+            XmlValue(rapidxml::xml_node<> *node,
+                     Serializer &serializer);
 
             XmlValue(const std::string_view name,
-                     const std::string_view type);
+                     Serializer &serializer);
 
             XmlValue(const std::string_view name,
                      const std::string_view type,
-                     const std::string_view value);
+                     Serializer &serializer);
+
+            XmlValue(const std::string_view name,
+                     const std::string_view type,
+                     const std::string_view value,
+                     Serializer &serializer);
+
+            XmlValue &operator=(rapidxml::xml_node<> *n)
+            {
+                m_node = n;
+                return *this;
+            }
+
+            Serializer &getSerializer() { return m_serializer; }
+            const Serializer &getSerializer() const { return m_serializer; }
 
             operator bool() const { return m_node != nullptr; }
 

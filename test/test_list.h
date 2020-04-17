@@ -9,9 +9,10 @@
 
 TEST(TestXmlList, TestSerializeList)
 {
+    FDXml::Serializer serializer;
     { // std::vector of int
         std::list<int> l = {0, 1, 2, 3};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(l);
+        FDXml::Serializer::Value val = serializer.serialize(l);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 4u);
         auto it = l.begin();
@@ -24,7 +25,7 @@ TEST(TestXmlList, TestSerializeList)
 
     { // std::deque of string
         std::forward_list<std::string> l = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(l);
+        FDXml::Serializer::Value val = serializer.serialize(l);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 6u);
         auto it = l.begin();
@@ -38,11 +39,12 @@ TEST(TestXmlList, TestSerializeList)
 
 TEST(TestXmlList, TestUnserializeList)
 {
+    FDXml::Serializer serializer;
     { // std::vector of int
         std::list<int> l;
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(std::initializer_list<int>{0, 1, 2, 3});
+        FDXml::Serializer::Value val = serializer.serialize(std::initializer_list<int>{0, 1, 2, 3});
         std::string err;
-        ASSERT_TRUE(FDXml::Serializer::getInstance().unserialize(val, l, &err)) << err;
+        ASSERT_TRUE(serializer.unserialize(val, l, &err)) << err;
         ASSERT_EQ(l.size(), 4u);
         auto it = l.begin();
         for(size_t i = 0, i_max = 4; i < i_max; ++i, ++it)
@@ -54,7 +56,7 @@ TEST(TestXmlList, TestUnserializeList)
 
     { // std::deque of string
         std::forward_list<std::string> l = {"", "1", "zafaezf", "fabzf\n", "kpkp", "pjpij"};
-        FDXml::Serializer::Value val = FDXml::Serializer::getInstance().serialize(l);
+        FDXml::Serializer::Value val = serializer.serialize(l);
         ASSERT_TRUE(val.isArray());
         ASSERT_EQ(val.size(), 6u);
         auto it = l.begin();

@@ -34,45 +34,45 @@ namespace FDXml
 
 namespace FDXml
 {
-    XmlValue serialize(TestClass &&c, Serializer &tag)
+    XmlValue serialize(TestClass &&c, Serializer &serializer)
     {
-        XmlValue val("TestClass");
+        XmlValue val("TestClass", serializer);
 
-        XmlValue i = FDXml::serialize(c.i, tag);
+        XmlValue i = FDXml::serialize(c.i, serializer);
         i.setName("i");
         val.addChildNode(i);
 
-        XmlValue f = FDXml::serialize(c.f, tag);
+        XmlValue f = FDXml::serialize(c.f, serializer);
         f.setName("f");
         val.addChildNode(f);
 
-        XmlValue ch = FDXml::serialize(c.c, tag);
+        XmlValue ch = FDXml::serialize(c.c, serializer);
         ch.setName("c");
         val.addChildNode(ch);
 
-        XmlValue str = FDXml::serialize(c.str, tag);
+        XmlValue str = FDXml::serialize(c.str, serializer);
         str.setName("str");
         val.addChildNode(str);
         return val;
     }
 
-    XmlValue serialize(const TestClass &c, Serializer &tag)
+    XmlValue serialize(const TestClass &c, Serializer &serializer)
     {
-        XmlValue val("TestClass");
+        XmlValue val("TestClass", serializer);
 
-        XmlValue i = FDXml::serialize(c.i, tag);
+        XmlValue i = FDXml::serialize(c.i, serializer);
         i.setName("i");
         val.addChildNode(i);
 
-        XmlValue f = FDXml::serialize(c.f, tag);
+        XmlValue f = FDXml::serialize(c.f, serializer);
         f.setName("f");
         val.addChildNode(f);
 
-        XmlValue ch = FDXml::serialize(c.c, tag);
+        XmlValue ch = FDXml::serialize(c.c, serializer);
         ch.setName("c");
         val.addChildNode(ch);
 
-        XmlValue str = FDXml::serialize(c.str, tag);
+        XmlValue str = FDXml::serialize(c.str, serializer);
         str.setName("str");
         val.addChildNode(str);
         return val;
@@ -110,8 +110,9 @@ namespace FDXml
 
 TEST(TestJsonCustom, TestSerializeCustomType)
 {
+    FDXml::Serializer serializer;
     std::ofstream file("TestClass.xml");
-    FDXml::XmlValue val = FDXml::serialize(TestClass(), FDXml::Serializer::getInstance());
+    FDXml::XmlValue val = FDXml::serialize(TestClass(), serializer);
     ASSERT_EQ(val["i"].getValue(), "42");
     ASSERT_EQ(val["f"].getValue(), std::to_string(3.14f));
     ASSERT_EQ(val["c"].getValue(), "A");
@@ -122,15 +123,16 @@ TEST(TestJsonCustom, TestSerializeCustomType)
 
 TEST(TestJsonCustom, TestUnserializeReflectConfig)
 {
+    FDXml::Serializer serializer;
     std::unique_ptr<char[]> text = FDCore::readFile("TestClass.xml");
 
     rapidxml::xml_document<> doc;    // character type defaults to char
     doc.parse<0>(text.get());
-    FDXml::XmlValue val(doc.first_node());
+    FDXml::XmlValue val(doc.first_node(), serializer);
 
     TestClass c;
     std::string err;
-    ASSERT_TRUE(FDXml::unserialize(val, c, FDXml::Serializer::getInstance(), &err)) << err;
+    ASSERT_TRUE(FDXml::unserialize(val, c, serializer, &err)) << err;
     ASSERT_EQ(c.i, 42);
     ASSERT_FLOAT_EQ(c.f, 3.14f);
     ASSERT_EQ(c.c, 'A');

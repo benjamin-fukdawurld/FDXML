@@ -12,15 +12,15 @@ namespace FDXml
 {
     template<typename Key, typename Value>
     template<typename Map>
-    XmlValue internal::map_helper<Key, Value>::serialize(Map &&m, Serializer &tag)
+    XmlValue internal::map_helper<Key, Value>::serialize(Map &&m, Serializer &serializer)
     {
-        XmlValue result("map", "array");
+        XmlValue result("map", "array", serializer);
         for(auto it = m.begin(), end = m.end(); it != end; ++it)
         {
-            XmlValue item("item");
-            XmlValue key = FDXml::serialize(it->first, tag);
+            XmlValue item("item", serializer);
+            XmlValue key = FDXml::serialize(it->first, serializer);
             key.setName("key");
-            XmlValue value = FDXml::serialize(it->second, tag);
+            XmlValue value = FDXml::serialize(it->second, serializer);
             value.setName("value");
 
             item.addChildNode(key);
@@ -34,15 +34,15 @@ namespace FDXml
 
     template<typename Key, typename Value>
     template<typename Map>
-    XmlValue internal::map_helper<Key, Value>::serialize(const Map &m, Serializer &tag)
+    XmlValue internal::map_helper<Key, Value>::serialize(const Map &m, Serializer &serializer)
     {
-        XmlValue result("map", "array");
+        XmlValue result("map", "array", serializer);
         for(auto it = m.begin(), end = m.end(); it != end; ++it)
         {
-            XmlValue item("item");
-            XmlValue key = FDXml::serialize(it->first, tag);
+            XmlValue item("item", serializer);
+            XmlValue key = FDXml::serialize(it->first, serializer);
             key.setName("key");
-            XmlValue value = FDXml::serialize(it->second, tag);
+            XmlValue value = FDXml::serialize(it->second, serializer);
             value.setName("value");
 
             item.addChildNode(key);
@@ -55,7 +55,7 @@ namespace FDXml
 
     template<typename  Key, typename Value>
     template<typename Map>
-    bool internal::map_helper<Key, Value>::unserialize(const XmlValue &val, Map &m, Serializer &tag, std::string *err)
+    bool internal::map_helper<Key, Value>::unserialize(const XmlValue &val, Map &m, Serializer &serializer, std::string *err)
     {
         if(!val.isArray())
         {
@@ -87,7 +87,7 @@ namespace FDXml
 
             Key k;
             Value v;
-            if(!FDXml::unserialize(key, k, tag, err) || !FDXml::unserialize(value, v, tag, err))
+            if(!FDXml::unserialize(key, k, serializer, err) || !FDXml::unserialize(value, v, serializer, err))
                 return false;
 
             m.emplace(k, v);
@@ -98,12 +98,12 @@ namespace FDXml
 
     template<typename Value>
     template<typename Map>
-    XmlValue internal::map_helper<std::string, Value>::serialize(Map &&m, Serializer &tag)
+    XmlValue internal::map_helper<std::string, Value>::serialize(Map &&m, Serializer &serializer)
     {
-        XmlValue result("map");
+        XmlValue result("map", serializer);
         for(auto it = m.begin(), end = m.end(); it != end; ++it)
         {
-            XmlValue item = FDXml::serialize(it->second, tag);
+            XmlValue item = FDXml::serialize(it->second, serializer);
             item.setName(it->first);
             result.addChildNode(item);
         }
@@ -113,12 +113,12 @@ namespace FDXml
 
     template<typename Value>
     template<typename Map>
-    XmlValue internal::map_helper<std::string, Value>::serialize(const Map &m, Serializer &tag)
+    XmlValue internal::map_helper<std::string, Value>::serialize(const Map &m, Serializer &serializer)
     {
-        XmlValue result("map");
+        XmlValue result("map", serializer);
         for(auto it = m.begin(), end = m.end(); it != end; ++it)
         {
-            XmlValue item = FDXml::serialize(it->second, tag);
+            XmlValue item = FDXml::serialize(it->second, serializer);
             item.setName(it->first);
             result.addChildNode(item);
         }
@@ -128,7 +128,7 @@ namespace FDXml
 
     template<typename Value>
     template<typename Map>
-    bool internal::map_helper<std::string, Value>::unserialize(const XmlValue &val, Map &m, Serializer &tag, std::string *err)
+    bool internal::map_helper<std::string, Value>::unserialize(const XmlValue &val, Map &m, Serializer &serializer, std::string *err)
     {
         if(!val.isObject())
         {
@@ -141,7 +141,7 @@ namespace FDXml
         for(auto it = val.begin(), end = val.end(); it != end; ++it)
         {
             Value v;
-            if(!FDXml::unserialize(*it, v, tag, err))
+            if(!FDXml::unserialize(*it, v, serializer, err))
                 return false;
 
             m.emplace(it->getAttribute("key"), v);
@@ -157,9 +157,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Compare, Allocator>, std::map<Key, Value, Compare, Allocator>>::value
     || std::is_same<Container<Key, Value, Compare, Allocator>, std::multimap<Key, Value, Compare, Allocator>>::value,
-    XmlValue> serialize(Container<Key, Value, Compare, Allocator> &&m, Serializer &tag)
+    XmlValue> serialize(Container<Key, Value, Compare, Allocator> &&m, Serializer &serializer)
     {
-        return internal::map_helper<Key, Value>::serialize(std::forward<Container<Key, Value, Compare, Allocator>>(m), tag);
+        return internal::map_helper<Key, Value>::serialize(std::forward<Container<Key, Value, Compare, Allocator>>(m), serializer);
     }
 
     template<template<typename, typename, typename, typename> typename Container,
@@ -169,9 +169,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Compare, Allocator>, std::map<Key, Value, Compare, Allocator>>::value
     || std::is_same<Container<Key, Value, Compare, Allocator>, std::multimap<Key, Value, Compare, Allocator>>::value,
-    XmlValue> serialize(const Container<Key, Value, Compare, Allocator> &m, Serializer &tag)
+    XmlValue> serialize(const Container<Key, Value, Compare, Allocator> &m, Serializer &serializer)
     {
-        return internal::map_helper<Key, Value>::serialize(m, tag);
+        return internal::map_helper<Key, Value>::serialize(m, serializer);
     }
 
     template<template<typename, typename, typename, typename> typename Container,
@@ -181,9 +181,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Compare, Allocator>, std::map<Key, Value, Compare, Allocator>>::value
     || std::is_same<Container<Key, Value, Compare, Allocator>, std::multimap<Key, Value, Compare, Allocator>>::value,
-    bool> unserialize(const XmlValue &val, Container<Key, Value, Compare, Allocator> &m, Serializer &tag, std::string *err)
+    bool> unserialize(const XmlValue &val, Container<Key, Value, Compare, Allocator> &m, Serializer &serializer, std::string *err)
     {
-        return internal::map_helper<Key, Value>::unserialize(val, m, tag, err);
+        return internal::map_helper<Key, Value>::unserialize(val, m, serializer, err);
     }
 
     template<template<typename, typename, typename, typename, typename> typename Container,
@@ -194,9 +194,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_map<Key, Value, Hash, KeyEqual, Allocator>>::value
     || std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_multimap<Key, Value, Hash, KeyEqual, Allocator>>::value,
-    XmlValue> serialize(Container<Key, Value, Hash, KeyEqual, Allocator> &&m, Serializer &tag)
+    XmlValue> serialize(Container<Key, Value, Hash, KeyEqual, Allocator> &&m, Serializer &serializer)
     {
-        return internal::map_helper<Key, Value>::serialize(std::forward<Container<Key, Value, Hash, KeyEqual, Allocator>>(m), tag);
+        return internal::map_helper<Key, Value>::serialize(std::forward<Container<Key, Value, Hash, KeyEqual, Allocator>>(m), serializer);
     }
 
     template<template<typename, typename, typename, typename, typename> typename Container,
@@ -207,9 +207,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_map<Key, Value, Hash, KeyEqual, Allocator>>::value
     || std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_multimap<Key, Value, Hash, KeyEqual, Allocator>>::value,
-    XmlValue> serialize(const Container<Key, Value, Hash, KeyEqual, Allocator> &m, Serializer &tag)
+    XmlValue> serialize(const Container<Key, Value, Hash, KeyEqual, Allocator> &m, Serializer &serializer)
     {
-        return internal::map_helper<Key, Value>::serialize(m, tag);
+        return internal::map_helper<Key, Value>::serialize(m, serializer);
     }
 
     template<template<typename, typename, typename, typename, typename> typename Container,
@@ -220,9 +220,9 @@ namespace FDXml
              typename Allocator>
     std::enable_if_t<std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_map<Key, Value, Hash, KeyEqual, Allocator>>::value
     || std::is_same<Container<Key, Value, Hash, KeyEqual, Allocator>, std::unordered_multimap<Key, Value, Hash, KeyEqual, Allocator>>::value,
-    bool> unserialize(const XmlValue &val, Container<Key, Value, Hash, KeyEqual, Allocator> &m, Serializer &tag, std::string *err)
+    bool> unserialize(const XmlValue &val, Container<Key, Value, Hash, KeyEqual, Allocator> &m, Serializer &serializer, std::string *err)
     {
-        return internal::map_helper<Key, Value>::unserialize(val, m, tag, err);
+        return internal::map_helper<Key, Value>::unserialize(val, m, serializer, err);
     }
 }
 

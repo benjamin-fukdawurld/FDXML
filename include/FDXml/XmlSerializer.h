@@ -10,6 +10,7 @@ namespace FDXml
 {
     class XmlSerializerImpl
     {
+        friend class FDSerialize::SerializerBase<XmlSerializerImpl>;
         public:
             typedef rapidxml::xml_document<> Document;
             typedef rapidxml::memory_pool<> Allocator;
@@ -17,6 +18,14 @@ namespace FDXml
 
         protected:
             Document m_doc;
+
+        private:
+            XmlSerializerImpl() = default;
+            XmlSerializerImpl(XmlSerializerImpl&&) = delete;
+            XmlSerializerImpl(const XmlSerializerImpl&) = delete;
+
+            XmlSerializerImpl &operator=(XmlSerializerImpl&&) = delete;
+            XmlSerializerImpl &operator=(const XmlSerializerImpl&) = delete;
 
         public:
             void clearMemory();
