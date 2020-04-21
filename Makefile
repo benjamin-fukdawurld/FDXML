@@ -746,35 +746,35 @@ compiler_clean:
 ../build/obj/FDXml/Xml_utils.o: src/Xml_utils.cpp include/FDXml/Xml_utils.h \
 		include/FDXml/Xml_primitive.h \
 		include/FDXml/Xml_primitive_fwd.h \
-		include/FDXml/XmlAttribute.h \
 		include/FDXml/FDXml.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
+		include/FDXml/XmlAttribute.h \
 		include/FDXml/XmlValue.h \
 		include/FDXml/XmlNodeIterator.h \
 		include/FDXml/XmlAttributeIterator.h \
-		include/FDXml/Xml_array.h \
-		include/FDXml/Xml_array_fwd.h \
-		include/FDXml/Xml_list.h \
-		include/FDXml/Xml_list_fwd.h \
-		include/FDXml/Xml_tuple.h \
-		include/FDXml/Xml_tuple_fwd.h \
-		include/FDXml/Xml_set.h \
-		include/FDXml/Xml_set_fwd.h \
-		include/FDXml/Xml_map.h \
-		include/FDXml/Xml_map_fwd.h \
 		include/FDXml/XmlSerializer.h \
-		../FDSerialize/include/FDSerialize/SerializerBase.h \
-		include/FDXml/Xml_fwd.h
+		include/FDXml/Xml_fwd.h \
+		include/FDXml/Xml_array_fwd.h \
+		include/FDXml/Xml_list_fwd.h \
+		include/FDXml/Xml_tuple_fwd.h \
+		include/FDXml/Xml_set_fwd.h \
+		include/FDXml/Xml_map_fwd.h \
+		include/FDXml/Xml_array.h \
+		include/FDXml/Xml_list.h \
+		include/FDXml/Xml_tuple.h \
+		include/FDXml/Xml_set.h \
+		include/FDXml/Xml_map.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/Xml_utils.o src/Xml_utils.cpp
 
 ../build/obj/FDXml/XmlValue.o: src/XmlValue.cpp include/FDXml/XmlValue.h \
 		include/FDXml/XmlAttribute.h \
 		include/FDXml/FDXml.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
 		include/FDXml/XmlNodeIterator.h \
 		include/FDXml/XmlAttributeIterator.h \
 		include/FDXml/XmlSerializer.h \
-		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		include/FDXml/Xml_fwd.h \
 		include/FDXml/Xml_primitive_fwd.h \
 		include/FDXml/Xml_array_fwd.h \
@@ -786,9 +786,9 @@ compiler_clean:
 
 ../build/obj/FDXml/XmlAttribute.o: src/XmlAttribute.cpp include/FDXml/XmlAttribute.h \
 		include/FDXml/FDXml.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
 		include/FDXml/XmlSerializer.h \
-		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		include/FDXml/Xml_fwd.h \
 		include/FDXml/Xml_primitive_fwd.h \
 		include/FDXml/Xml_array_fwd.h \
@@ -805,6 +805,7 @@ compiler_clean:
 		include/FDXml/XmlValue.h \
 		include/FDXml/XmlAttribute.h \
 		include/FDXml/FDXml.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
 		include/FDXml/XmlAttributeIterator.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlNodeIterator.o src/XmlNodeIterator.cpp
@@ -812,6 +813,7 @@ compiler_clean:
 ../build/obj/FDXml/XmlAttributeIterator.o: src/XmlAttributeIterator.cpp include/FDXml/XmlAttributeIterator.h \
 		include/FDXml/XmlAttribute.h \
 		include/FDXml/FDXml.h \
+		../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../thirdparty/rapidxml/rapidxml.hpp \
 		include/FDXml/XmlValue.h \
 		include/FDXml/XmlNodeIterator.h

@@ -712,11 +712,11 @@ compiler_clean:
 		FDXml_test.h \
 		test_primitive.h \
 		../../FDXml/include/FDXml/Xml_primitive_fwd.h \
-		../../FDXml/include/FDXml/XmlSerializer.h \
-		../../FDSerialize/include/FDSerialize/SerializerBase.h \
-		../../FDXml/include/FDXml/Xml_fwd.h \
 		../../FDXml/include/FDXml/FDXml.h \
+		../../FDSerialize/include/FDSerialize/SerializerBase.h \
 		../../thirdparty/rapidxml/rapidxml.hpp \
+		../../FDXml/include/FDXml/XmlSerializer.h \
+		../../FDXml/include/FDXml/Xml_fwd.h \
 		../../FDXml/include/FDXml/Xml_array_fwd.h \
 		../../FDXml/include/FDXml/Xml_list_fwd.h \
 		../../FDXml/include/FDXml/Xml_tuple_fwd.h \
