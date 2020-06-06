@@ -4,7 +4,11 @@
 
 #include <cstring>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <rapidxml/rapidxml_print.hpp>
+#pragma GCC diagnostic pop
+
 #include <fstream>
 #include <sstream>
 

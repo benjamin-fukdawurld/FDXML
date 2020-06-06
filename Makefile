@@ -835,6 +835,7 @@ compiler_clean:
 		include/FDXml/XmlNodeIterator.h \
 		include/FDXml/XmlAttributeIterator.h \
 		../FDCore/include/FDCore/FileUtils.h \
+		../FDCore/include/FDCore/Macros.h \
 		../thirdparty/rapidxml/rapidxml_print.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../build/obj/FDXml/XmlSerializer.o src/XmlSerializer.cpp
 

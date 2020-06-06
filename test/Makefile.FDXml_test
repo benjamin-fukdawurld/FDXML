@@ -739,8 +739,8 @@ compiler_clean:
 		test_custom.h \
 		../../FDXml/include/FDXml/Xml_utils.h \
 		../../FDXml/include/FDXml/Xml_map.h \
-		../../thirdparty/rapidxml/rapidxml_print.hpp \
-		../../FDCore/include/FDCore/FileUtils.h
+		../../FDCore/include/FDCore/FileUtils.h \
+		../../FDCore/include/FDCore/Macros.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../../build/obj/FDXml_test/main.o main.cpp
 
 ####### Install

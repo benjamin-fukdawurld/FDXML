@@ -103,7 +103,6 @@ namespace FDXml
     }
 }
 
-#include <rapidxml/rapidxml_print.hpp>
 #include <FDCore/FileUtils.h>
 #include <fstream>
 #include <cstdio>
@@ -118,7 +117,7 @@ TEST(TestJsonCustom, TestSerializeCustomType)
     ASSERT_EQ(val["c"].getValue(), "A");
     ASSERT_EQ(val["str"].getValue(), "toto");
 
-    file << *val;
+    serializer.save(val, "TestClass.xml");
 }
 
 TEST(TestJsonCustom, TestUnserializeReflectConfig)
